@@ -1,0 +1,101 @@
+{
+    "appKeys": {
+        "KEY_CONDITIONS": 0,
+        "KEY_FEELSLIKE": 2,
+        "KEY_TEMPERATURE": 1,
+        "KEY_TOWN": 3
+    },
+    "capabilities": [
+        "location"
+    ],
+    "companyName": "Oupsman",
+    "longName": "Oupsman weather",
+    "projectType": "native",
+    "resources": {
+        "media": [
+            {
+                "file": "images/foggy.png",
+                "name": "IMG_FOGGY",
+                "type": "png"
+            },
+            {
+                "file": "images/no_bluetooth.png",
+                "name": "IMG_NO_BT",
+                "type": "png"
+            },
+            {
+                "file": "images/battery_00.png",
+                "name": "IMG_BATTERY_0",
+                "type": "png"
+            },
+            {
+                "file": "images/battery_20.png",
+                "name": "IMG_BATTERY_20",
+                "type": "png"
+            },
+            {
+                "file": "images/battery_40.png",
+                "name": "IMG_BATTERY_40",
+                "type": "png"
+            },
+            {
+                "file": "images/battery_60.png",
+                "name": "IMG_BATTERY_60",
+                "type": "png"
+            },
+            {
+                "file": "images/battery_80.png",
+                "name": "IMG_BATTERY_80",
+                "type": "png"
+            },
+            {
+                "file": "images/battery_100.png",
+                "name": "IMG_BATTERY_100",
+                "type": "png"
+            },
+            {
+                "file": "images/bluetooth.png",
+                "name": "IMG_BTSIGN",
+                "type": "png"
+            },
+            {
+                "file": "images/cloudy.png",
+                "name": "IMG_CLOUDY",
+                "type": "png"
+            },
+            {
+                "file": "images/cloud_night.png",
+                "name": "IMG_CLOUD_NIGHT",
+                "type": "png"
+            },
+            {
+                "file": "images/sunny.png",
+                "name": "IMG_SUNNY",
+                "type": "png"
+            },
+            {
+                "file": "images/partly.png",
+                "name": "IMG_PARTLY",
+                "type": "png"
+            },
+            {
+                "file": "images/fair_night.png",
+                "name": "IMG_FAIR_NIGHT",
+                "type": "png"
+            },
+            {
+                "file": "images/no_image.png",
+                "name": "IMG_NO_IMAGE",
+                "type": "png"
+            }
+        ]
+    },
+    "sdkVersion": "2",
+    "shortName": "oMeteo",
+    "uuid": "04b01329-d12c-492c-832a-d3c0240d2948",
+    "versionCode": 1,
+    "versionLabel": "1.3",
+    "watchapp": {
+        "watchface": true
+    }
+}
