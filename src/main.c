@@ -1,31 +1,6 @@
 #include <pebble.h>
-  
-#define KEY_CONDITIONS 0
-#define KEY_TEMPERATURE 1
-#define KEY_WINDCHILL 2
-#define KEY_TOWN 3
-#define KEY_UPDATETIME 4
-  
-static GBitmap *s_bitmap_no_image;
-static GBitmap *s_bitmap_sunny;
-static GBitmap *s_bitmap_cloudy;
-static GBitmap *s_bitmap_foggy;
-static GBitmap *s_bitmap_rainy;
-static GBitmap *s_bitmap_snowy;
-static GBitmap *s_bitmap_windy;
-static GBitmap *s_bitmap_partly;
-static GBitmap *s_bitmap_fair_night;
-static GBitmap *s_bitmap_partly_night;
-
-static GBitmap *s_bluetooth;
-static GBitmap *s_no_bluetooth;
-
-static GBitmap *s_battery_level_100;
-static GBitmap *s_battery_level_80;
-static GBitmap *s_battery_level_60;
-static GBitmap *s_battery_level_40;
-static GBitmap *s_battery_level_20;
-static GBitmap *s_battery_level_0;
+#include "graphics.h"
+#include "storage.h"
 
 static Window *s_main_window;
 
@@ -41,45 +16,12 @@ static BitmapLayer *s_conditions_layer;
 static BitmapLayer *s_bt_layer;
 static BitmapLayer *s_battery_level;
 
-static uint8_t temperature;
-static uint8_t windchill;
-static uint8_t conditions;
-static char time_update [] = "11h11";
-static char town[129] = "";
-
-static void load_datas (void) {
-  temperature = persist_exists(KEY_TEMPERATURE) ? persist_read_int(KEY_TEMPERATURE) : 0;
-  windchill = persist_exists(KEY_WINDCHILL) ? persist_read_int(KEY_WINDCHILL) : 0;
-  conditions = persist_exists(KEY_CONDITIONS) ? persist_read_int(KEY_CONDITIONS) : 0;
-  if (persist_exists (KEY_UPDATETIME)) {
-    persist_read_string (KEY_UPDATETIME,time_update,sizeof(time_update));
-  }
-  if (persist_exists (KEY_TOWN)){
-    persist_read_string (KEY_TOWN,town,sizeof(town));
-  } 
-  
-  APP_LOG (APP_LOG_LEVEL_INFO,"Loading datas from storage %d %d %d %s %s",temperature,windchill,conditions,time_update,town);
-}
-
-static void save_datas(void) {
-  APP_LOG (APP_LOG_LEVEL_INFO,"Writing datas to storage %d %d %d %s %s",temperature,windchill,conditions,time_update,town);
-
-  persist_write_int (KEY_TEMPERATURE, temperature);
-  persist_write_int (KEY_WINDCHILL, windchill);
-  persist_write_int (KEY_CONDITIONS, conditions);
-  persist_write_string (KEY_UPDATETIME, time_update);
-  persist_write_string (KEY_TOWN,town);
-  
-}
-
 static void update_battery_indicator () {
   
   static char log_buffer[128] = "Updating battery indicator" ;
 
   BatteryChargeState charge_state = battery_state_service_peek();
-
   APP_LOG (APP_LOG_LEVEL_INFO, "%s", log_buffer);
-  
   if (charge_state.charge_percent == 100 ) {
     bitmap_layer_set_bitmap (s_battery_level, s_battery_level_100);  
   } else if (charge_state.charge_percent >= 80 ) {
@@ -120,50 +62,48 @@ static void init_bt_indicator (void) {
 static void update_conditions (uint8_t weather_code) {
 
   static char log_buffer[128];
-
-
-      snprintf (log_buffer, sizeof (log_buffer), "Weather code I've got from the JS : %u", weather_code);
-      APP_LOG (APP_LOG_LEVEL_INFO, "%s", log_buffer);
+  snprintf (log_buffer, sizeof (log_buffer), "Weather code I've got from the JS : %u", weather_code);
+  APP_LOG (APP_LOG_LEVEL_INFO, "%s", log_buffer);
    
-      switch (weather_code){
-        case 20:
-        case 21:
-          bitmap_layer_set_bitmap(s_conditions_layer, s_bitmap_foggy);
-        break;
-        case 26:
-          bitmap_layer_set_bitmap(s_conditions_layer, s_bitmap_cloudy);
-        break;
+  switch (weather_code){
+    case 20:
+    case 21:
+      bitmap_layer_set_bitmap(s_conditions_layer, s_bitmap_foggy);
+    break;
+  
+    case 26:
+      bitmap_layer_set_bitmap(s_conditions_layer, s_bitmap_cloudy);
+    break;
         
-        case 27:
-        case 29:
-          bitmap_layer_set_bitmap(s_conditions_layer, s_bitmap_partly_night);
-        break;
+    case 27:
+    case 29:
+      bitmap_layer_set_bitmap(s_conditions_layer, s_bitmap_partly_night);
+    break;
         
-        case 28:
-        case 30:
-          bitmap_layer_set_bitmap(s_conditions_layer, s_bitmap_partly);
-        break;
+    case 28:
+    case 30:
+      bitmap_layer_set_bitmap(s_conditions_layer, s_bitmap_partly);
+    break;
         
-        case 32:
-        case 34:
-          bitmap_layer_set_bitmap(s_conditions_layer, s_bitmap_sunny);
-        break;
+    case 32:
+    case 34:
+      bitmap_layer_set_bitmap(s_conditions_layer, s_bitmap_sunny);
+    break;
         
-        case 33:
-          bitmap_layer_set_bitmap(s_conditions_layer, s_bitmap_fair_night);
-        break;
+    case 33:
+      bitmap_layer_set_bitmap(s_conditions_layer, s_bitmap_fair_night);
+    break;
         
-        default:
-          APP_LOG(APP_LOG_LEVEL_INFO, "Oops shouldn't be here !");
-          bitmap_layer_set_bitmap(s_conditions_layer, s_bitmap_no_image);
-        break;
-      }
-     
-      conditions = weather_code;
-
+    default:
+      APP_LOG(APP_LOG_LEVEL_INFO, "Oops shouldn't be here !");
+      bitmap_layer_set_bitmap(s_conditions_layer, s_bitmap_no_image);
+    break;
+  }
+  conditions = weather_code;
 }
 
 static void update_time() {
+
   // Get a tm structure
   time_t temp = time(NULL); 
   struct tm *tick_time = localtime(&temp);
@@ -171,7 +111,6 @@ static void update_time() {
   // Create a long-lived buffer
   static char buffer[] = "00:00";
   static char buffer_weekday [] = "Wednesday 31 december";
-  
   // Write the current hours and minutes into the buffer
   if(clock_is_24h_style() == true) {
     //Use 24h hour format
@@ -180,9 +119,7 @@ static void update_time() {
     //Use 12 hour format
     strftime(buffer, sizeof("00:00"), "%I:%M", tick_time);
   }
-
   strftime(buffer_weekday, sizeof ("Wednesday December 31"), "%A %B %d", tick_time);
-  
   // Display this time on the TextLayer
   text_layer_set_text(s_time_layer, buffer);
   text_layer_set_text(s_weekday_layer, buffer_weekday);
@@ -276,10 +213,8 @@ static void main_window_load(Window *window) {
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_temperature_layer));
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_windchill_layer));
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_static_temp_layer));         
-      
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_town_layer));     
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_update_layer));    
-  
   layer_add_child(window_get_root_layer(window), bitmap_layer_get_layer(s_conditions_layer));     
   layer_add_child(window_get_root_layer(window), bitmap_layer_get_layer(s_battery_level));         
   layer_add_child(window_get_root_layer(window), bitmap_layer_get_layer(s_bt_layer));  
@@ -311,25 +246,8 @@ static void main_window_unload(Window *window) {
   bitmap_layer_destroy(s_battery_level);
   bitmap_layer_destroy(s_bt_layer);
   
-  gbitmap_destroy (s_bitmap_no_image);
-  gbitmap_destroy (s_bitmap_sunny);
-  gbitmap_destroy (s_bitmap_partly);
-  gbitmap_destroy (s_bitmap_partly_night);
-  gbitmap_destroy (s_bitmap_fair_night);
-  gbitmap_destroy (s_bitmap_cloudy);
-  gbitmap_destroy (s_bitmap_foggy);
-  
-  gbitmap_destroy (s_bluetooth);
-  gbitmap_destroy (s_no_bluetooth);
-  
-  gbitmap_destroy (s_battery_level_100);
-  gbitmap_destroy (s_battery_level_80);
-  gbitmap_destroy (s_battery_level_60);
-  gbitmap_destroy (s_battery_level_40);
-  gbitmap_destroy (s_battery_level_20);
-  gbitmap_destroy (s_battery_level_0);
-  
-  
+  destroy_graphics ();
+
 }
 
 static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
@@ -374,7 +292,6 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
         snprintf(temperature_buffer, sizeof(temperature_buffer), "%d °C", (int)t->value->int32);
         text_layer_set_text(s_temperature_layer, temperature_buffer);
         temperature = t->value->int32;
-      
       break;
       case KEY_CONDITIONS:
         weather_code = (unsigned int)t->value->uint8;
@@ -386,7 +303,6 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
         snprintf(feelslike_buffer, sizeof(feelslike_buffer), "%d °C", (int)t->value->int32);
         text_layer_set_text(s_windchill_layer, feelslike_buffer);
         windchill = t->value->int32;
-      
       break;
       case KEY_TOWN:
         snprintf(town_buffer, sizeof(town_buffer), "%s", t->value->cstring);
@@ -439,21 +355,8 @@ static void init() {
   load_datas();
   
   // Load all images
-  s_bitmap_no_image = gbitmap_create_with_resource(RESOURCE_ID_IMG_NO_IMAGE);
-  s_bitmap_sunny = gbitmap_create_with_resource(RESOURCE_ID_IMG_SUNNY);
-  s_bitmap_partly = gbitmap_create_with_resource(RESOURCE_ID_IMG_PARTLY);
-  s_bitmap_fair_night = gbitmap_create_with_resource(RESOURCE_ID_IMG_FAIR_NIGHT);
-  s_bitmap_partly_night = gbitmap_create_with_resource(RESOURCE_ID_IMG_CLOUD_NIGHT);
-  s_bitmap_cloudy = gbitmap_create_with_resource(RESOURCE_ID_IMG_CLOUDY);
-  s_bitmap_foggy = gbitmap_create_with_resource(RESOURCE_ID_IMG_FOGGY);
-  s_bluetooth = gbitmap_create_with_resource (RESOURCE_ID_IMG_BTSIGN);
-  s_no_bluetooth = gbitmap_create_with_resource (RESOURCE_ID_IMG_NO_BT);
-  s_battery_level_100 = gbitmap_create_with_resource (RESOURCE_ID_IMG_BATTERY_100);
-  s_battery_level_80 = gbitmap_create_with_resource (RESOURCE_ID_IMG_BATTERY_80);
-  s_battery_level_60 = gbitmap_create_with_resource (RESOURCE_ID_IMG_BATTERY_60);
-  s_battery_level_40 = gbitmap_create_with_resource (RESOURCE_ID_IMG_BATTERY_40);
-  s_battery_level_20 = gbitmap_create_with_resource (RESOURCE_ID_IMG_BATTERY_20);
-  s_battery_level_0 = gbitmap_create_with_resource (RESOURCE_ID_IMG_BATTERY_0);
+
+  load_graphics ();
   
   // Show the Window on the watch, with animated=true
   window_stack_push(s_main_window, true);

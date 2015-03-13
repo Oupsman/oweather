@@ -14,6 +14,16 @@
     "resources": {
         "media": [
             {
+                "file": "images/windy.png",
+                "name": "IMG_WINDY",
+                "type": "png"
+            },
+            {
+                "file": "images/snowy.png",
+                "name": "IMG_SNOWY",
+                "type": "png"
+            },
+            {
                 "file": "images/foggy.png",
                 "name": "IMG_FOGGY",
                 "type": "png"
