@@ -1,5 +1,3 @@
-// Yahoo Weather https://developer.yahoo.com/weather/
-// https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20weather.forecast%20where%20woeid%20in%20%28select%20woeid%20from%20geo.places%281%29%20where%20text%3D%22Orl%C3%A9ans%2C%20FR%22%29&format=json&diagnostics=true&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys&callback=
 
 var xhrRequest = function (url, type, callback) {
   var xhr = new XMLHttpRequest();
@@ -21,20 +19,22 @@ function f_to_c (temp_f) {
   return temp_c;
   
 }
+
+
 function locationSuccess(pos) {
   // Construct URL
-  var url = "http://api.openweathermap.org/data/2.5/weather?lat=" +
-      pos.coords.latitude + "&lon=" + pos.coords.longitude;
+  var url = "https://maps.googleapis.com/maps/api/geocode/json?latlng=" +
+      pos.coords.latitude + "," + pos.coords.longitude;
   
   console.log ("Using url " + url);
   
   // Send request to OpenWeatherMap
   xhrRequest(url, 'GET', 
              function (responseText){
-      console.log ("JSON " + responseText);
+      //console.log ("JSON " + responseText);
       // responseText contains a JSON object with weather info
       var json = JSON.parse(responseText);
-      var town = json.name + "," + json.sys.country;
+      var town = json.results[2].address_components[0].long_name + "," + json.results[5].address_components[0].short_name;
       console.log("Location :" + town);
       // Now we have geolocalisated the user, let's query the Yahoo weather 
       var yahoo_url = 'https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20weather.forecast%20where%20woeid%20in%20%28select%20woeid%20from%20geo.places%281%29%20where%20text%3D%22' + encodeURIComponent(town) + '%22%29&format=json&diagnostics=true&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys&callback=';
@@ -51,6 +51,9 @@ function locationSuccess(pos) {
 
         // Conditions
         var conditions = json.query.results.channel.item.condition.code;      
+        if (conditions > 255) {
+          conditions = 255;
+        }
         console.log("Conditions are " + conditions);
       
         var feelslike = json.query.results.channel.wind.chill;

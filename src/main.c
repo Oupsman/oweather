@@ -1,7 +1,10 @@
 #include <pebble.h>
 #include "graphics.h"
 #include "storage.h"
-
+#include "weather.h"
+#include "graphics.h"
+  
+  
 static Window *s_main_window;
 
 static TextLayer *s_time_layer;
@@ -11,31 +14,6 @@ static TextLayer *s_windchill_layer;
 static TextLayer *s_static_temp_layer;
 static TextLayer *s_town_layer;
 static TextLayer *s_update_layer;
-
-static BitmapLayer *s_conditions_layer;
-static BitmapLayer *s_bt_layer;
-static BitmapLayer *s_battery_level;
-
-static void update_battery_indicator () {
-  
-  static char log_buffer[128] = "Updating battery indicator" ;
-
-  BatteryChargeState charge_state = battery_state_service_peek();
-  APP_LOG (APP_LOG_LEVEL_INFO, "%s", log_buffer);
-  if (charge_state.charge_percent == 100 ) {
-    bitmap_layer_set_bitmap (s_battery_level, s_battery_level_100);  
-  } else if (charge_state.charge_percent >= 80 ) {
-    bitmap_layer_set_bitmap (s_battery_level, s_battery_level_80);  
-  } else if (charge_state.charge_percent >= 60 ) {
-    bitmap_layer_set_bitmap (s_battery_level, s_battery_level_60);  
-  } else if (charge_state.charge_percent >= 40) {
-    bitmap_layer_set_bitmap (s_battery_level, s_battery_level_40);   
-  } else if (charge_state.charge_percent >= 20) {
-    bitmap_layer_set_bitmap (s_battery_level, s_battery_level_20);  
-  } else {
-    bitmap_layer_set_bitmap (s_battery_level, s_battery_level_0);     
-  }
-} 
 
 static void update_bluetooth_indicator (bool connected) {
   
@@ -64,42 +42,13 @@ static void update_conditions (uint8_t weather_code) {
   static char log_buffer[128];
   snprintf (log_buffer, sizeof (log_buffer), "Weather code I've got from the JS : %u", weather_code);
   APP_LOG (APP_LOG_LEVEL_INFO, "%s", log_buffer);
-   
-  switch (weather_code){
-    case 20:
-    case 21:
-      bitmap_layer_set_bitmap(s_conditions_layer, s_bitmap_foggy);
-    break;
+
+  set_icon_from_conditions (weather_code);
   
-    case 26:
-      bitmap_layer_set_bitmap(s_conditions_layer, s_bitmap_cloudy);
-    break;
-        
-    case 27:
-    case 29:
-      bitmap_layer_set_bitmap(s_conditions_layer, s_bitmap_partly_night);
-    break;
-        
-    case 28:
-    case 30:
-      bitmap_layer_set_bitmap(s_conditions_layer, s_bitmap_partly);
-    break;
-        
-    case 32:
-    case 34:
-      bitmap_layer_set_bitmap(s_conditions_layer, s_bitmap_sunny);
-    break;
-        
-    case 33:
-      bitmap_layer_set_bitmap(s_conditions_layer, s_bitmap_fair_night);
-    break;
-        
-    default:
-      APP_LOG(APP_LOG_LEVEL_INFO, "Oops shouldn't be here !");
-      bitmap_layer_set_bitmap(s_conditions_layer, s_bitmap_no_image);
-    break;
-  }
+  bitmap_layer_set_bitmap(s_conditions_layer, s_bitmap_weather);
+  
   conditions = weather_code;
+
 }
 
 static void update_time() {
@@ -128,6 +77,8 @@ static void update_time() {
 static void main_window_load(Window *window) {
   
   char temp_buffer[32] = "";
+  BatteryChargeState charge_state = battery_state_service_peek();
+  
   
   window_set_background_color(s_main_window, GColorBlack);
   
@@ -182,7 +133,7 @@ static void main_window_load(Window *window) {
   s_conditions_layer = bitmap_layer_create(GRect (0,64,72,72));
   bitmap_layer_set_bitmap (s_conditions_layer, s_bitmap_no_image);
 
-  s_battery_level  = bitmap_layer_create (GRect (110,0,25,10));
+  s_battery_layer  = bitmap_layer_create (GRect (110,0,25,10));
  
   s_bt_layer = bitmap_layer_create (GRect (137,0,7,10));
   
@@ -216,7 +167,7 @@ static void main_window_load(Window *window) {
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_town_layer));     
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_update_layer));    
   layer_add_child(window_get_root_layer(window), bitmap_layer_get_layer(s_conditions_layer));     
-  layer_add_child(window_get_root_layer(window), bitmap_layer_get_layer(s_battery_level));         
+  layer_add_child(window_get_root_layer(window), bitmap_layer_get_layer(s_battery_layer));         
   layer_add_child(window_get_root_layer(window), bitmap_layer_get_layer(s_bt_layer));  
   
   // Make sure the time is displayed from the start
@@ -227,7 +178,7 @@ static void main_window_load(Window *window) {
   
   init_bt_indicator ();
   
-  update_battery_indicator();
+  update_battery_indicator(charge_state);
   
 }
 
@@ -243,7 +194,7 @@ static void main_window_unload(Window *window) {
   text_layer_destroy(s_update_layer);
 
   bitmap_layer_destroy(s_conditions_layer);
-  bitmap_layer_destroy(s_battery_level);
+  bitmap_layer_destroy(s_battery_layer);
   bitmap_layer_destroy(s_bt_layer);
   
   destroy_graphics ();

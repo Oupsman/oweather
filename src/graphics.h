@@ -15,13 +15,14 @@ GBitmap *s_bitmap_partly_night;
 GBitmap *s_bluetooth;
 GBitmap *s_no_bluetooth;
 
-GBitmap *s_battery_level_100;
-GBitmap *s_battery_level_80;
-GBitmap *s_battery_level_60;
-GBitmap *s_battery_level_40;
-GBitmap *s_battery_level_20;
-GBitmap *s_battery_level_0;
+GBitmap *s_battery_level;
+
+BitmapLayer *s_bt_layer;
+
+BitmapLayer *s_battery_layer;
 
 void load_graphics (void);
 
 void destroy_graphics (void);
+
+void update_battery_indicator (BatteryChargeState);
