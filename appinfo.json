@@ -3,10 +3,12 @@
         "KEY_CONDITIONS": 0,
         "KEY_FEELSLIKE": 2,
         "KEY_TEMPERATURE": 1,
-        "KEY_TOWN": 3
+        "KEY_TOWN": 3,
+        "KEY_UNIT": 5
     },
     "capabilities": [
-        "location"
+        "location",
+        "configurable"
     ],
     "companyName": "Oupsman",
     "longName": "Oupsman weather",

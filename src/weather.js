@@ -1,3 +1,6 @@
+// JSON Online viewer : http://jsonviewer.stack.hu/
+
+var temp_unit = 0;
 
 var xhrRequest = function (url, type, callback) {
   var xhr = new XMLHttpRequest();
@@ -58,15 +61,31 @@ function locationSuccess(pos) {
       
         var feelslike = json.query.results.channel.wind.chill;
        // console.log ("Feels like " + feelslike);
+        var dictionary;
+        console.log ("Unit :" + temp_unit);
         
         // Assemble dictionary using our keys
-        var dictionary = {
-          "KEY_TEMPERATURE": f_to_c(temperature),
-          "KEY_CONDITIONS": parseInt(conditions),
-          "KEY_FEELSLIKE": f_to_c(feelslike),
-          "KEY_TOWN": town
-        };
-
+        if (temp_unit === '0') {
+          console.log ("Unit : Celcius");
+          dictionary = {
+            "KEY_TEMPERATURE": f_to_c(temperature) + "°C",
+            "KEY_CONDITIONS": parseInt(conditions),
+            "KEY_FEELSLIKE": f_to_c(feelslike) + "°C",
+            "KEY_TOWN": town,
+            
+          };
+        } else {
+          console.log ("Unit : Farenheit");
+          dictionary = {
+            "KEY_TEMPERATURE": temperature + "°F",
+            "KEY_CONDITIONS": parseInt(conditions),
+            "KEY_FEELSLIKE": feelslike  + "°F",
+            "KEY_TOWN": town,
+            
+          };
+          
+        }
+        
         // Send to Pebble
         Pebble.sendAppMessage(dictionary,
           function(e) {
@@ -102,16 +121,43 @@ function getWeather() {
 Pebble.addEventListener('ready', 
   function(e) {
     console.log("PebbleKit JS ready!");
+    temp_unit = localStorage.getItem("temp_unit");
+    if (!temp_unit) {
+      temp_unit = 0; // Default: Celcius
+    }
 
     // Get the initial weather
     getWeather();
   }
 );
 
-  // Listen for when an AppMessage is received
-  Pebble.addEventListener('appmessage',
+// Listen for when an AppMessage is received
+Pebble.addEventListener('appmessage',
     function(e) {
       console.log("AppMessage received!");
       getWeather();
     }                     
-  );
+);
+
+
+Pebble.addEventListener("showConfiguration", 
+    function(e) {
+      console.log("showConfiguration Event");
+
+      Pebble.openURL("http://apps.oupsman.fr/oweather_config.php?" +
+        "temp_unit=" + temp_unit );
+    }
+);
+
+Pebble.addEventListener("webviewclosed", function(e) {
+  console.log("Configuration window closed");
+  console.log(e.type);
+  console.log(e.response);
+  var configuration = JSON.parse(e.response);
+  //Pebble.sendAppMessage(configuration);
+  temp_unit = configuration.temp_unit;
+  console.log ("Unit : " + temp_unit);
+  localStorage.setItem("temp_unit", temp_unit);
+  // Force weather refresh when you change the unit
+  getWeather();
+});

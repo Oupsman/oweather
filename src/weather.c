@@ -62,7 +62,6 @@ static uint32_t WEATHER_ICONS[] = {
   RESOURCE_ID_IMG_THUNDER,       //45
   RESOURCE_ID_IMG_SNOWY,         //46
   RESOURCE_ID_IMG_THUNDER        //47
-
 };
 
 #define MAX_CONDITIONS 47

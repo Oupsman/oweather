@@ -105,9 +105,8 @@ static void main_window_load(Window *window) {
   text_layer_set_text_color(s_temperature_layer, GColorWhite);
   text_layer_set_text_alignment(s_temperature_layer, GTextAlignmentRight);
   //text_layer_set_text(s_temperature_layer, "-xx °C");
-  snprintf(temp_buffer, sizeof(temp_buffer), "%d °C", temperature);
-  APP_LOG (APP_LOG_LEVEL_INFO, "Temperature : %s", temp_buffer);
-  text_layer_set_text(s_temperature_layer, temp_buffer);
+  APP_LOG (APP_LOG_LEVEL_INFO, "Temperature : %s", temperature);
+  text_layer_set_text(s_temperature_layer, temperature);
   
   s_windchill_layer = text_layer_create(GRect(98, 98, 46, 26));
   text_layer_set_background_color(s_windchill_layer, GColorBlack);
@@ -115,8 +114,7 @@ static void main_window_load(Window *window) {
   text_layer_set_text_alignment(s_windchill_layer, GTextAlignmentRight);
   //text_layer_set_text(s_windchill_layer, "-xx °C");
 
-  snprintf(temp_buffer, sizeof(temp_buffer), "%d °C", windchill);
-  text_layer_set_text(s_temperature_layer, temp_buffer);
+  text_layer_set_text(s_temperature_layer, windchill);
   
   s_town_layer = text_layer_create (GRect(0,134,144,16));
   text_layer_set_background_color (s_town_layer,GColorBlack);
@@ -223,8 +221,7 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
 
   static unsigned int weather_code;
   // Store incoming information
-  static char temperature_buffer[8];
-  static char feelslike_buffer[8];
+
   static char town_buffer[64];
   time_t temp = time(NULL); 
 
@@ -240,9 +237,9 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
     // Which key was received?
     switch(t->key) {
       case KEY_TEMPERATURE:
-        snprintf(temperature_buffer, sizeof(temperature_buffer), "%d °C", (int)t->value->int32);
-        text_layer_set_text(s_temperature_layer, temperature_buffer);
-        temperature = t->value->int32;
+        
+        text_layer_set_text(s_temperature_layer, t->value->cstring);
+        strcpy(temperature,t->value->cstring);
       break;
       case KEY_CONDITIONS:
         weather_code = (unsigned int)t->value->uint8;
@@ -251,9 +248,8 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
         text_layer_set_text(s_update_layer, time_update);
       break;
       case KEY_WINDCHILL:
-        snprintf(feelslike_buffer, sizeof(feelslike_buffer), "%d °C", (int)t->value->int32);
-        text_layer_set_text(s_windchill_layer, feelslike_buffer);
-        windchill = t->value->int32;
+        text_layer_set_text(s_windchill_layer, t->value->cstring);
+        strcpy (windchill, t->value->cstring);
       break;
       case KEY_TOWN:
         snprintf(town_buffer, sizeof(town_buffer), "%s", t->value->cstring);
@@ -271,7 +267,9 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
 }
 
 static void inbox_dropped_callback(AppMessageResult reason, void *context) {
+
   APP_LOG(APP_LOG_LEVEL_ERROR, "Message dropped!");
+  
 }
 
 static void outbox_failed_callback(DictionaryIterator *iterator, AppMessageResult reason, void *context) {
