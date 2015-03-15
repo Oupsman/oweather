@@ -252,6 +252,7 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
         strcpy (windchill, t->value->cstring);
       break;
       case KEY_TOWN:
+        APP_LOG(APP_LOG_LEVEL_INFO, "Town : %s", t->value->cstring);
         snprintf(town_buffer, sizeof(town_buffer), "%s", t->value->cstring);
         text_layer_set_text (s_town_layer,town_buffer);
         strcpy (town,t->value->cstring);
