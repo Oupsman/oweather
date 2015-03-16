@@ -15,6 +15,8 @@ static TextLayer *s_static_temp_layer;
 static TextLayer *s_town_layer;
 static TextLayer *s_update_layer;
 
+// static InverterLayer *inverter_layer;
+
 static void update_bluetooth_indicator (bool connected) {
   
   if (connected) {
@@ -76,7 +78,6 @@ static void update_time() {
 
 static void main_window_load(Window *window) {
   
-  char temp_buffer[32] = "";
   BatteryChargeState charge_state = battery_state_service_peek();
   
   
@@ -105,8 +106,6 @@ static void main_window_load(Window *window) {
   text_layer_set_text_color(s_temperature_layer, GColorWhite);
   text_layer_set_text_alignment(s_temperature_layer, GTextAlignmentRight);
   //text_layer_set_text(s_temperature_layer, "-xx °C");
-  APP_LOG (APP_LOG_LEVEL_INFO, "Temperature : %s", temperature);
-  text_layer_set_text(s_temperature_layer, temperature);
   
   s_windchill_layer = text_layer_create(GRect(98, 98, 46, 26));
   text_layer_set_background_color(s_windchill_layer, GColorBlack);
@@ -114,8 +113,6 @@ static void main_window_load(Window *window) {
   text_layer_set_text_alignment(s_windchill_layer, GTextAlignmentRight);
   //text_layer_set_text(s_windchill_layer, "-xx °C");
 
-  text_layer_set_text(s_temperature_layer, windchill);
-  
   s_town_layer = text_layer_create (GRect(0,134,144,16));
   text_layer_set_background_color (s_town_layer,GColorBlack);
   text_layer_set_text_color (s_town_layer,GColorWhite);
@@ -134,6 +131,7 @@ static void main_window_load(Window *window) {
   s_battery_layer  = bitmap_layer_create (GRect (110,0,25,10));
  
   s_bt_layer = bitmap_layer_create (GRect (137,0,7,10));
+  
   
   // Improve the layout to be more like a watchface
   text_layer_set_font(s_time_layer, fonts_get_system_font(FONT_KEY_BITHAM_42_BOLD));
@@ -167,6 +165,18 @@ static void main_window_load(Window *window) {
   layer_add_child(window_get_root_layer(window), bitmap_layer_get_layer(s_conditions_layer));     
   layer_add_child(window_get_root_layer(window), bitmap_layer_get_layer(s_battery_layer));         
   layer_add_child(window_get_root_layer(window), bitmap_layer_get_layer(s_bt_layer));  
+  
+  /*
+  inverter_layer = inverter_layer_create(GRect (0, 0, 144, 168));
+  layer_add_child (window_get_root_layer(window), inverter_layer_get_layer(inverter_layer));
+  */
+  
+  APP_LOG (APP_LOG_LEVEL_INFO, "Temperature : %s", temperature);
+  text_layer_set_text(s_temperature_layer, temperature);
+
+  APP_LOG (APP_LOG_LEVEL_INFO, "Windchill : %s", windchill);
+  text_layer_set_text(s_windchill_layer, windchill);
+  
   
   // Make sure the time is displayed from the start
   

@@ -47,6 +47,7 @@ function ask_Yahoo(where) {
       var conditions = json.query.results.channel.item.condition.code;      
       if (conditions > 255) {
         conditions = 255;
+        console.log (responseText);
       }
       console.log("Conditions are " + conditions);
       
