@@ -98,14 +98,24 @@ function locationSuccess(pos) {
   var url = "https://maps.googleapis.com/maps/api/geocode/json?latlng=" +
       pos.coords.latitude + "," + pos.coords.longitude;
   
-  // console.log ("Using url " + url);
+  console.log ("Asking Google for your position, using url " + url);
   // Send request to OpenWeatherMap
   xhrRequest(url, 'GET', 
     function (responseText){
+      var i;
+      var element=0;
+      // var gpstown = "unknow";
       //console.log ("JSON " + responseText);
       // responseText contains a JSON object with weather info
       var json = JSON.parse(responseText);
-      var gpstown = json.results[2].address_components[0].long_name + "," + json.results[5].address_components[0].short_name;
+      var nbelements = (json.results[2].address_components).length;
+      console.log ("Nb elements" + nbelements);
+      for (i=0; i<nbelements;i++) {
+        if (json.results[2].address_components[i].types[0] == "locality") {
+          element = i;		  
+        }
+      }
+      var gpstown = json.results[2].address_components[element].long_name + "," + json.results[5].address_components[0].short_name;
       // console.log("Location :" + gpstown);
       // Now we have geolocalisated the user, let's query the Yahoo weather 
       ask_Yahoo (gpstown);      
