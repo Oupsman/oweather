@@ -14,15 +14,9 @@ var xhrRequest = function (url, type, callback) {
 };
 
 function f_to_c (temp_f) {
-  
   var temp_c;
-  
   temp_c = Math.round((temp_f-32)/1.8);
-  
-  // console.log("Temperature Celcius :" + temp_c);
-  
   return temp_c;
-  
 }
 
 function ask_Yahoo(where) {
@@ -31,12 +25,12 @@ function ask_Yahoo(where) {
       "where%20woeid%20in%20%28select%20woeid%20from%20geo.places%281%29%20where%20text%3D%22" + 
       encodeURIComponent(where) + '%22%29&format=json&diagnostics=true&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys&callback=';
       
-  // console.log ("Yahoo URL : " + yahoo_url);
+  console.log ("Yahoo URL : " + yahoo_url);
                
   xhrRequest(yahoo_url, 'GET', 
     function(responseText) {
       // responseText contains a JSON object with weather info
-      //console.log ("Yahoo said " + responseText);
+      // console.log ("Yahoo said " + responseText);
       var json = JSON.parse(responseText);
 
       // Temperature in Kelvin requires adjustment
@@ -90,39 +84,56 @@ function ask_Yahoo(where) {
   );
 } 
 
-function locationSuccess(pos) {
-  console.log ("GPS value" + gps);
+function ask_Google(pos) {
+  // console.log ("GPS value" + gps);
   if (gps === '1') {
-  console.log ("Using GPS");  
+  // console.log ("Using GPS");  
   // Construct URL
   var url = "https://maps.googleapis.com/maps/api/geocode/json?latlng=" +
       pos.coords.latitude + "," + pos.coords.longitude;
   
-  console.log ("Asking Google for your position, using url " + url);
-  // Send request to OpenWeatherMap
+   console.log ("Asking Google for your position, using url " + url);
+  // Send request to Google WS
   xhrRequest(url, 'GET', 
     function (responseText){
       var i;
-      var element=0;
+      var townelement=0;
+      var countryelement=0;
       // var gpstown = "unknow";
-      //console.log ("JSON " + responseText);
-      // responseText contains a JSON object with weather info
+      
+      // responseText contains a JSON object with localisation info
       var json = JSON.parse(responseText);
-      var nbelements = (json.results[2].address_components).length;
-      console.log ("Nb elements" + nbelements);
-      for (i=0; i<nbelements;i++) {
-        if (json.results[2].address_components[i].types[0] == "locality") {
-          element = i;		  
-        }
-      }
-      var gpstown = json.results[2].address_components[element].long_name + "," + json.results[5].address_components[0].short_name;
-      // console.log("Location :" + gpstown);
-      // Now we have geolocalisated the user, let's query the Yahoo weather 
-      ask_Yahoo (gpstown);      
+       if (json.results.address_components === undefined ){
+         console.log ("JSON " + responseText);
+         console.log("No valid answer from Google, fallback to town");
+         ask_Yahoo (town);
+       } else {
+         var nbelements = (json.results[0].address_components).length;
+         // console.log ("Nb elements " + nbelements);
+         for (i=0; i<nbelements;i++) {
+           // console.log ("Type : " + json.results[0].address_components[i].types[0]);
+           if (json.results[0].address_components[i].types[0] == "locality") {
+             townelement = i;
+           }
+             if (json.results[0].address_components[i].types[0] == "country") {
+               countryelement = i;
+             }        
+         }
+         console.log ("Town element " + townelement + " Country element " + countryelement);
+      
+         /*      var nbelements_country = (json.results[0].address_components).length;
+         for (i=0;i<nbelements_country;i++) {      
+
+         }*/
+         var gpstown = json.results[0].address_components[townelement].long_name + "," + json.results[0].address_components[countryelement].short_name;
+         // console.log("Location :" + gpstown);
+         // Now we have geolocalisated the user, let's query the Yahoo weather 
+         ask_Yahoo (gpstown); 
+       }
     }      
   );      
   } else {
-    console.log ("NOT using GPS, Town is " + town);
+    // console.log ("NOT using GPS, Town is " + town);
     ask_Yahoo (town);
   }
 }
@@ -132,11 +143,13 @@ function locationError(err) {
 }
 
 function getWeather() {
-  navigator.geolocation.getCurrentPosition(
-    locationSuccess,
-    locationError,
-    {timeout: 15000, maximumAge: 60000}
-  );
+  if (gps === '1') {
+    navigator.geolocation.getCurrentPosition(
+      ask_Google,
+      locationError,
+      {timeout: 15000, maximumAge: 60000}
+    );
+  }
 }
 
 // Listen for when the watchface is opened
@@ -181,17 +194,17 @@ Pebble.addEventListener("showConfiguration",
 );
 
 Pebble.addEventListener("webviewclosed", function(e) {
-  console.log("Configuration window closed");
-  console.log(e.type);
-  console.log(e.response);
+  // console.log("Configuration window closed");
+  // console.log(e.type);
+  // console.log(e.response);
   var configuration = JSON.parse(e.response);
   //Pebble.sendAppMessage(configuration);
   temp_unit = configuration.temp_unit;
   gps = configuration.gps;
   town = configuration.town;
-  console.log ("Unit : " + temp_unit);
-  console.log ("gps : " + gps);
-  console.log ("Town : " + town);
+  // console.log ("Unit : " + temp_unit);
+  // console.log ("gps : " + gps);
+  // console.log ("Town : " + town);
   localStorage.setItem("temp_unit", temp_unit);
   localStorage.setItem("gps", gps);
   localStorage.setItem("town", town);
