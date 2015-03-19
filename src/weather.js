@@ -103,7 +103,7 @@ function ask_Google(pos) {
       
       // responseText contains a JSON object with localisation info
       var json = JSON.parse(responseText);
-       if (json.results.address_components === undefined ){
+       if (json.status !== "OK" ){
          console.log ("JSON " + responseText);
          console.log("No valid answer from Google, fallback to town");
          ask_Yahoo (town);
