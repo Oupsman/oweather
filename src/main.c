@@ -15,7 +15,7 @@ static TextLayer *s_static_temp_layer;
 static TextLayer *s_town_layer;
 static TextLayer *s_update_layer;
 
-// static InverterLayer *inverter_layer;
+static InverterLayer *inverter_layer;
 
 static void update_bluetooth_indicator (bool connected) {
   
@@ -59,6 +59,12 @@ static void update_time() {
 
   // Get a tm structure
   time_t temp = time(NULL); 
+  
+  if ( shift_time > 0 ) {
+    APP_LOG (APP_LOG_LEVEL_INFO, "Shifting time %d", shift_time);
+    temp += shift_time;
+  } 
+
   struct tm *tick_time = localtime(&temp);
 
   // Create a long-lived buffer
@@ -173,10 +179,10 @@ static void main_window_load(Window *window) {
   layer_add_child(window_get_root_layer(window), bitmap_layer_get_layer(s_battery_layer));         
   layer_add_child(window_get_root_layer(window), bitmap_layer_get_layer(s_bt_layer));  
   
-  /*
   inverter_layer = inverter_layer_create(GRect (0, 0, 144, 168));
-  layer_add_child (window_get_root_layer(window), inverter_layer_get_layer(inverter_layer));
-  */
+  if (invert == 1) {
+    layer_add_child (window_get_root_layer(window), inverter_layer_get_layer(inverter_layer));
+  }
   
   APP_LOG (APP_LOG_LEVEL_INFO, "Temperature : %s", temperature);
   text_layer_set_text(s_temperature_layer, temperature);
@@ -250,6 +256,7 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
   struct tm *tick_time = localtime(&temp);
   //static char conditions_buffer[32];
   //static char weather_layer_buffer[32];
+  uint8_t newvalue;
   
   // Read first item
   Tuple *t = dict_read_first(iterator);
@@ -302,6 +309,32 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
         APP_LOG(APP_LOG_LEVEL_INFO, "HOURLYVIBE : %d", t->value->uint8);
         hourlyvibe = t->value->uint8;
       break;
+      case KEY_INVERT:
+        APP_LOG(APP_LOG_LEVEL_INFO, "INVERT : %d", t->value->uint8);
+        newvalue = t->value->uint8;
+        if (newvalue != invert) {
+          switch (newvalue) {
+            case 0:
+              layer_remove_from_parent(inverter_layer_get_layer(inverter_layer));
+            break;
+            case 1:
+              layer_add_child (window_get_root_layer(s_main_window), inverter_layer_get_layer(inverter_layer));
+            break;
+            default:
+              APP_LOG(APP_LOG_LEVEL_ERROR, "ARE YOU KIDING ?! : %d", newvalue);
+            break;
+          }
+          invert = newvalue;
+          
+        }
+      break;
+      case KEY_SHIFTTIME:
+        APP_LOG(APP_LOG_LEVEL_INFO, "SHIFT TIME : %d", t->value->uint16);
+        shift_time = t->value->uint16;
+      
+        update_time();      
+      break;
+        
       default:
         APP_LOG(APP_LOG_LEVEL_ERROR, "Key %d not recognized!", (int)t->key);
       break;

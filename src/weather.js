@@ -9,6 +9,8 @@ var dndperiodstart = 22;
 var dndperiodend = 6;
 var hourlyvibe = 0;
 var interval=30;
+var time_shift=0;
+var invert=0;
 
 var xhrRequest = function (url, type, callback) {
   var xhr = new XMLHttpRequest();
@@ -78,6 +80,8 @@ function ask_Yahoo(where) {
           "KEY_DNDPERIODEND": parseInt(dndperiodend),
           "KEY_HOURLYVIBE": parseInt(hourlyvibe),
           "KEY_INTERVAL": parseInt(interval),
+          "KEY_SHIFTTIME": parseInt (time_shift),
+          "KEY_INVERT": parseInt (invert),
         };
           
       
@@ -179,6 +183,8 @@ Pebble.addEventListener('ready',
     dnd = localStorage.getItem ("dnd");
     dndperiodstart = localStorage.getItem ("dndperiodstart");
     dndperiodend = localStorage.getItem ("dndperiodend");
+    time_shift = localStorage.getItem ("time_shift");
+    invert = localStorage.getItem ("invert");
     
     if (!temp_unit) {
       temp_unit = 0; // Default: Celcius
@@ -211,7 +217,9 @@ Pebble.addEventListener("showConfiguration",
             "&dndperiodstart=" + dndperiodstart +
             "&dndperiodend=" + dndperiodend +
             "&hourlyvibe=" + hourlyvibe +
-            "&interval=" + interval ;
+            "&interval=" + interval + 
+            "&invert=" + invert +
+            "&time_shift=" + time_shift ;
         console.log (url);
 
         Pebble.openURL(url);
@@ -232,6 +240,8 @@ Pebble.addEventListener("webviewclosed", function(e) {
   dndperiodend = configuration.dndperiodend;
   hourlyvibe = configuration.hourlyvibe;
   interval = configuration.interval;
+  time_shift = configuration.time_shift;
+  invert = configuration.invert;
   
   localStorage.setItem("temp_unit", temp_unit);
   localStorage.setItem("gps", gps);
@@ -242,6 +252,9 @@ Pebble.addEventListener("webviewclosed", function(e) {
   localStorage.setItem("dndperiodend",dndperiodend);
   localStorage.setItem("hourlyvibe",hourlyvibe);
   localStorage.setItem("interval",interval);
+  localStorage.setItem("time_shift",time_shift);
+  localStorage.setItem("invert", invert);
+  console.log ("Time shift : " + time_shift);
   
   // Force weather refresh when you change the settings
   getWeather();

@@ -14,12 +14,18 @@
 #define KEY_DNDPERIODEND 11
 #define KEY_INTERVAL 12
 #define KEY_OWNER 13
+#define KEY_SHIFTTIME 14
+#define KEY_INVERT 15
+  
   
 char temperature[15];
 char windchill[15];
 uint8_t conditions;
 uint8_t hourlyvibe;
 uint8_t interval;
+uint8_t invert;
+
+uint16_t shift_time;
 
 char time_update[6];
 char town[129];

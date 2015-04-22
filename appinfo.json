@@ -7,7 +7,9 @@
         "KEY_FEELSLIKE": 2,
         "KEY_HOURLYVIBE": 8,
         "KEY_INTERVAL": 12,
+        "KEY_INVERT": 15,
         "KEY_OWNER": 13,
+        "KEY_SHIFTTIME": 14,
         "KEY_TEMPERATURE": 1,
         "KEY_TOWN": 3,
         "KEY_UNIT": 5,
@@ -18,7 +20,7 @@
         "location",
         "configurable"
     ],
-    "companyName": "Oupsman",
+    "companyName": "Benoit SERRA",
     "longName": "Oupsman weather",
     "projectType": "native",
     "resources": {

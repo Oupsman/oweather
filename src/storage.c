@@ -38,7 +38,10 @@ void load_datas (void) {
   if (persist_exists (KEY_OWNER)) {
     persist_read_string (KEY_OWNER, owner, sizeof(owner));    
   }
+  shift_time = persist_exists(KEY_SHIFTTIME) ? persist_read_int(KEY_SHIFTTIME): 0;
+  invert = persist_exists(KEY_INVERT) ? persist_read_int(KEY_INVERT): 0;
 
+  
 }
 
 void save_datas(void) {
