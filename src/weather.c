@@ -41,16 +41,16 @@ static uint32_t WEATHER_ICONS[] = {
   RESOURCE_ID_IMG_WINDY,                 //24
   RESOURCE_ID_IMG_WINDY,                 //25
   RESOURCE_ID_IMG_CLOUDY,                //26
-  RESOURCE_ID_IMG_CLOUDY,                //27 //NIGHT //MOSTLY 
-  RESOURCE_ID_IMG_CLOUDY,                //28 //DAY //MOSTLY
-  RESOURCE_ID_IMG_PARTLY,                //29 //NIGHT //PARTLY
-  RESOURCE_ID_IMG_PARTLY,                //30 // DAY // PARTLY
+  RESOURCE_ID_IMG_CLOUDY,                //27 // NIGHT     // MOSTLY 
+  RESOURCE_ID_IMG_CLOUDY,                //28 // DAY       // MOSTLY
+  RESOURCE_ID_IMG_PARTLY,                //29 // NIGHT     // PARTLY
+  RESOURCE_ID_IMG_PARTLY,                //30 // DAY       // PARTLY
   RESOURCE_ID_IMG_FAIR_NIGHT,            //31 // NIGHT
   RESOURCE_ID_IMG_SUNNY,                 //32 // DAY
-  RESOURCE_ID_IMG_FAIR_NIGHT,            //33 //NIGHT
-  RESOURCE_ID_IMG_SUNNY,                 //34 //FAIR DAY
+  RESOURCE_ID_IMG_FAIR_NIGHT,            //33 // NIGHT
+  RESOURCE_ID_IMG_SUNNY,                 //34 // FAIR DAY
   RESOURCE_ID_IMG_HAIL,                  //35 // HAIL AND RAIN
-  RESOURCE_ID_IMG_SUNNY,                 //36 //HOT WEATHER
+  RESOURCE_ID_IMG_SUNNY,                 //36 // HOT WEATHER
   RESOURCE_ID_IMG_THUNDER,               //37
   RESOURCE_ID_IMG_THUNDER,               //38
   RESOURCE_ID_IMG_THUNDER,               //39
@@ -75,4 +75,5 @@ void set_icon_from_conditions (uint8_t conditions) {
   } else {
     s_bitmap_weather = gbitmap_create_with_resource (RESOURCE_ID_IMG_NO_IMAGE);
   }  
+
 }

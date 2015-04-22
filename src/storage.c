@@ -23,21 +23,39 @@ void load_datas (void) {
     
   } 
   conditions = persist_exists(KEY_CONDITIONS) ? persist_read_int(KEY_CONDITIONS) : 0;
+  hourlyvibe = persist_exists(KEY_HOURLYVIBE) ? persist_read_int(KEY_HOURLYVIBE) : 0;
+  dnd = persist_exists(KEY_DND) ? persist_read_int(KEY_DND) : 1;
+  dndperiodstart = persist_exists(KEY_DNDPERIODSTART) ? persist_read_int(KEY_DNDPERIODSTART) : 22;
+  dndperiodend = persist_exists(KEY_DNDPERIODEND) ? persist_read_int(KEY_DNDPERIODEND) : 6;
+
   if (persist_exists (KEY_UPDATETIME)) {
     persist_read_string (KEY_UPDATETIME,time_update,sizeof(time_update));
   }
   if (persist_exists (KEY_TOWN)){
     persist_read_string (KEY_TOWN,town,sizeof(town));
   } 
-  APP_LOG (APP_LOG_LEVEL_INFO,"Loading datas from storage %s %s %ul %s %s",temperature,windchill,conditions,time_update,town);
+  
+  if (persist_exists (KEY_OWNER)) {
+    persist_read_string (KEY_OWNER, owner, sizeof(owner));    
+  }
+
 }
 
 void save_datas(void) {
-  APP_LOG (APP_LOG_LEVEL_INFO,"Writing datas to storage %s %s %u %s %s",temperature,windchill,conditions,time_update,town);
+  
+  APP_LOG (APP_LOG_LEVEL_INFO,"Writing datas to storage %s %s %u %s %s %u",temperature,windchill,conditions,time_update,town, hourlyvibe);
+
   persist_write_string (KEY_TEMPERATURE, temperature);
   persist_write_string (KEY_WINDCHILL, windchill);
-  persist_write_int (KEY_CONDITIONS, conditions);
+  persist_write_int (KEY_CONDITIONS, conditions);  
+  
+  persist_write_int (KEY_DND, dnd);
+  persist_write_int (KEY_DNDPERIODSTART, dndperiodstart);
+  persist_write_int (KEY_DNDPERIODEND, dndperiodend);
+  persist_write_int (KEY_HOURLYVIBE, hourlyvibe);
+  
   
   persist_write_string (KEY_UPDATETIME, time_update);
   persist_write_string (KEY_TOWN,town);
+  persist_write_string (KEY_OWNER,owner);
 }

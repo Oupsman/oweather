@@ -3,6 +3,12 @@
 var temp_unit = 0;
 var gps = 1;
 var town = "";
+var owner = "";
+var dnd = 1;
+var dndperiodstart = 22;
+var dndperiodend = 6;
+var hourlyvibe = 0;
+var interval=30;
 
 var xhrRequest = function (url, type, callback) {
   var xhr = new XMLHttpRequest();
@@ -23,7 +29,8 @@ function ask_Yahoo(where) {
   
   var yahoo_url = "https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20weather.forecast%20" + 
       "where%20woeid%20in%20%28select%20woeid%20from%20geo.places%281%29%20where%20text%3D%22" + 
-      encodeURIComponent(where) + '%22%29&format=json&diagnostics=true&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys&callback=';
+      encodeURIComponent(where) + '%22%29&format=json&diagnostics=true' +
+      '&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys&callback=';
       
   console.log ("Yahoo URL : " + yahoo_url);
                
@@ -33,51 +40,55 @@ function ask_Yahoo(where) {
       // console.log ("Yahoo said " + responseText);
       var json = JSON.parse(responseText);
 
-      // Temperature in Kelvin requires adjustment
-      var temperature = json.query.results.channel.item.condition.temp;
-      //console.log("Temperature is " + temperature);
-
+      
       // Conditions
-      var conditions = json.query.results.channel.item.condition.code;      
+      var conditions = json.query.results.channel.item.condition.code;   
       if (conditions > 255) {
         conditions = 255;
         console.log (responseText);
       }
-      console.log("Conditions are " + conditions);
+      /*
+      var conditions1 = json.query.results.channel.item.forecast[0].code;
+      var conditions2 = json.query.results.channel.item.forecast[1].code;
+      var conditions3 = json.query.results.channel.item.forecast[2].code;
+      */
+      var feelslike;
+      var temperature;
       
-      var feelslike = json.query.results.channel.wind.chill;
-      // console.log ("Feels like " + feelslike);
-      var dictionary;
-      console.log ("Unit :" + temp_unit);
-        
-      // Assemble dictionary using our keys
-      if (temp_unit === '0') {
-        console.log ("Unit : Celcius");
-        dictionary = {
-          "KEY_TEMPERATURE": f_to_c(temperature) + "°C",
-          "KEY_CONDITIONS": parseInt(conditions),
-          "KEY_FEELSLIKE": f_to_c(feelslike) + "°C",
-          "KEY_TOWN": where,
-          
-        };
+      if (temp_unit === 0) {
+        console.log ("°C");
+        feelslike = f_to_c(json.query.results.channel.wind.chill) + "°C";
+        temperature = f_to_c(json.query.results.channel.item.condition.temp) + "°C";
       } else {
-        console.log ("Unit : Farenheit");
-        dictionary = {
-          "KEY_TEMPERATURE": temperature + "°F",
+        console.log ("°F");
+        feelslike = json.query.results.channel.wind.chill + "°F";
+        temperature = json.query.results.channel.item.condition.temp + "°F";        
+      }
+       
+      
+      
+      var dictionary = {
+          "KEY_TEMPERATURE": temperature,
           "KEY_CONDITIONS": parseInt(conditions),
-          "KEY_FEELSLIKE": feelslike  + "°F",
-          "KEY_TOWN": where,
-            
+          "KEY_FEELSLIKE": feelslike,
+          "KEY_TOWN": where,    
+          "KEY_OWNER": owner,
+          "KEY_DND": parseInt(dnd),
+          "KEY_DNDPERIODSTART": parseInt(dndperiodstart),
+          "KEY_DNDPERIODEND": parseInt(dndperiodend),
+          "KEY_HOURLYVIBE": parseInt(hourlyvibe),
+          "KEY_INTERVAL": parseInt(interval),
         };
           
-      }
+      
       // Send to Pebble
       Pebble.sendAppMessage(dictionary,
         function(e) {
           console.log("Weather info sent to Pebble successfully!");
         },
         function(e) {
-          console.log("Error sending weather info to Pebble!");
+          console.log("Unable to deliver message with transactionId=" + e.data.transactionId + " for data " + JSON.stringify(dictionary) );
+          
         }
       );          
     }
@@ -156,19 +167,25 @@ function getWeather() {
 Pebble.addEventListener('ready', 
   function(e) {
     console.log("PebbleKit JS ready!");
-    temp_unit = localStorage.getItem("temp_unit");
+    temp_unit = parseInt(localStorage.getItem("temp_unit"));
+    console.log ("Temp_unit : " + temp_unit);
     gps = localStorage.getItem("gps");
     if (gps === null) {
       gps = 1;
     }
     town = localStorage.getItem("town");
+    owner = localStorage.getItem("owner");
+    hourlyvibe = localStorage.getItem("hourlyvibe");
+    dnd = localStorage.getItem ("dnd");
+    dndperiodstart = localStorage.getItem ("dndperiodstart");
+    dndperiodend = localStorage.getItem ("dndperiodend");
     
     if (!temp_unit) {
       temp_unit = 0; // Default: Celcius
     }
-
-    // Get the initial weather
-    getWeather();
+    if (!hourlyvibe) {
+      hourlyvibe = 0;
+    }
   }
 );
 
@@ -184,30 +201,47 @@ Pebble.addEventListener('appmessage',
 Pebble.addEventListener("showConfiguration", 
     function(e) {
       console.log("showConfiguration Event");
+        console.log("showConfiguration Event");
+        var url = "http://apps.oupsman.fr/oweather_config_15.php?" +
+            "temp_unit=" + temp_unit +
+            "&gps=" + gps +
+            "&town=" + encodeURIComponent(town) +
+            "&owner=" + encodeURIComponent(owner) +
+            "&dnd=" + dnd +
+            "&dndperiodstart=" + dndperiodstart +
+            "&dndperiodend=" + dndperiodend +
+            "&hourlyvibe=" + hourlyvibe +
+            "&interval=" + interval ;
+        console.log (url);
 
-      Pebble.openURL("http://apps.oupsman.fr/oweather_config.php?" +
-        "temp_unit=" + temp_unit +
-        "&gps=" + gps +
-        "&town=" + encodeURIComponent(town)
-      );
+        Pebble.openURL(url);
+
     }
 );
 
 Pebble.addEventListener("webviewclosed", function(e) {
-  // console.log("Configuration window closed");
-  // console.log(e.type);
-  // console.log(e.response);
+  
   var configuration = JSON.parse(e.response);
-  //Pebble.sendAppMessage(configuration);
-  temp_unit = configuration.temp_unit;
+  
+  temp_unit = parseInt(configuration.temp_unit);
   gps = configuration.gps;
   town = configuration.town;
-  // console.log ("Unit : " + temp_unit);
-  // console.log ("gps : " + gps);
-  // console.log ("Town : " + town);
+  owner = configuration.owner;
+  dnd = configuration.dnd;
+  dndperiodstart = configuration.dndperiodstart;
+  dndperiodend = configuration.dndperiodend;
+  hourlyvibe = configuration.hourlyvibe;
+  interval = configuration.interval;
+  
   localStorage.setItem("temp_unit", temp_unit);
   localStorage.setItem("gps", gps);
   localStorage.setItem("town", town);
+  localStorage.setItem("owner",owner);
+  localStorage.setItem("dnd", dnd);
+  localStorage.setItem("dndperiodstart",dndperiodstart);
+  localStorage.setItem("dndperiodend",dndperiodend);
+  localStorage.setItem("hourlyvibe",hourlyvibe);
+  localStorage.setItem("interval",interval);
   
   // Force weather refresh when you change the settings
   getWeather();

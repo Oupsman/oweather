@@ -1,17 +1,14 @@
 {
     "appKeys": {
-        "KEY_COND1": 8,
-        "KEY_COND2": 9,
-        "KEY_COND3": 10,
         "KEY_CONDITIONS": 0,
+        "KEY_DND": 9,
+        "KEY_DNDPERIODEND": 11,
+        "KEY_DNDPERIODSTART": 10,
         "KEY_FEELSLIKE": 2,
+        "KEY_HOURLYVIBE": 8,
+        "KEY_INTERVAL": 12,
+        "KEY_OWNER": 13,
         "KEY_TEMPERATURE": 1,
-        "KEY_TEMPMAX1": 14,
-        "KEY_TEMPMAX2": 15,
-        "KEY_TEMPMAX3": 16,
-        "KEY_TEMPMIN1": 11,
-        "KEY_TEMPMIN2": 12,
-        "KEY_TEMPMIN3": 13,
         "KEY_TOWN": 3,
         "KEY_UNIT": 5,
         "KEY_WINDDIR": 6,
@@ -137,7 +134,7 @@
     "shortName": "oWeather",
     "uuid": "04b01329-d12c-492c-832a-d3c0240d2948",
     "versionCode": 1,
-    "versionLabel": "1.4",
+    "versionLabel": "1.5",
     "watchapp": {
         "watchface": true
     }

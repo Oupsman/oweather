@@ -21,10 +21,12 @@ static void update_bluetooth_indicator (bool connected) {
   
   if (connected) {
     vibes_short_pulse();
-    bitmap_layer_set_bitmap(s_bt_layer, s_bluetooth);    
+    bitmap_layer_set_bitmap(s_bt_layer, s_bluetooth);  
+    text_layer_set_text(s_update_layer, time_update);
   } else {    
     vibes_double_pulse();
     bitmap_layer_set_bitmap(s_bt_layer, s_no_bluetooth);
+    text_layer_set_text(s_update_layer, owner);
   } 
   
 }
@@ -135,10 +137,10 @@ static void main_window_load(Window *window) {
   
   // Improve the layout to be more like a watchface
   text_layer_set_font(s_time_layer, fonts_get_system_font(FONT_KEY_BITHAM_42_BOLD));
-  text_layer_set_text_alignment(s_time_layer, GTextAlignmentRight);
+  text_layer_set_text_alignment(s_time_layer, GTextAlignmentCenter);
 
   text_layer_set_font(s_weekday_layer, fonts_get_system_font(FONT_KEY_GOTHIC_14));
-  text_layer_set_text_alignment(s_time_layer, GTextAlignmentCenter);
+  text_layer_set_text_alignment(s_weekday_layer, GTextAlignmentCenter);
 
   text_layer_set_font (s_temperature_layer,fonts_get_system_font (FONT_KEY_GOTHIC_18));
   text_layer_set_text_alignment (s_temperature_layer,GTextAlignmentLeft);
@@ -150,7 +152,12 @@ static void main_window_load(Window *window) {
   text_layer_set_text_alignment(s_static_temp_layer, GTextAlignmentLeft);
   
   text_layer_set_font(s_town_layer, fonts_get_system_font(FONT_KEY_GOTHIC_14));
+  text_layer_set_text_alignment(s_town_layer, GTextAlignmentLeft);
+  
+  
+  text_layer_set_font(s_update_layer, fonts_get_system_font(FONT_KEY_GOTHIC_14));
   text_layer_set_text_alignment(s_update_layer, GTextAlignmentLeft);
+  
   
   //text_layer_set_text_alignment(s_static_temp_layer, GTextAlignmentLeft);
   
@@ -212,18 +219,23 @@ static void main_window_unload(Window *window) {
 static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
   update_time();
   
-  // Get weather update every ten minutes
-  if(tick_time->tm_min % 10 == 0) {
-    APP_LOG (APP_LOG_LEVEL_INFO, "Updating weather");
-    // Begin dictionary
-    DictionaryIterator *iter;
-    app_message_outbox_begin(&iter);
+  if ((tick_time->tm_hour < dndperiodstart && tick_time->tm_hour >= dndperiodend) || dnd == 1){
+    // Get weather update every ten minutes
+    if(tick_time->tm_min % interval == 0) {
+      APP_LOG (APP_LOG_LEVEL_INFO, "Updating weather");
+      // Begin dictionary
+      DictionaryIterator *iter;
+      app_message_outbox_begin(&iter);
 
-    // Add a key-value pair
-    dict_write_uint8(iter, 0, 0);
+      // Add a key-value pair
+      dict_write_uint8(iter, 0, 0);
 
-    // Send the message!
-    app_message_outbox_send();
+      // Send the message!
+      app_message_outbox_send();
+    }  
+  } 
+  if ( ( hourlyvibe == 1 ) && (tick_time->tm_min == 0)) {
+    vibes_short_pulse();
   }
 }
 
@@ -247,7 +259,6 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
     // Which key was received?
     switch(t->key) {
       case KEY_TEMPERATURE:
-        
         text_layer_set_text(s_temperature_layer, t->value->cstring);
         strcpy(temperature,t->value->cstring);
       break;
@@ -266,6 +277,30 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
         snprintf(town_buffer, sizeof(town_buffer), "%s", t->value->cstring);
         text_layer_set_text (s_town_layer,town_buffer);
         strcpy (town,t->value->cstring);
+      break;
+      case KEY_INTERVAL: 
+        APP_LOG(APP_LOG_LEVEL_INFO, "Interval : %d", t->value->uint8);
+        interval = t->value->uint8;
+      break;
+      case KEY_DND: 
+        APP_LOG(APP_LOG_LEVEL_INFO, "DND : %d", t->value->uint8);
+        dnd = t->value->uint8;
+      break;
+      case KEY_DNDPERIODSTART: 
+        APP_LOG(APP_LOG_LEVEL_INFO, "DND Period Start: %d", t->value->uint8);
+        dndperiodstart = t->value->uint8;
+      break;
+      case KEY_DNDPERIODEND: 
+        APP_LOG(APP_LOG_LEVEL_INFO, "DND : %d", t->value->uint8);
+        dndperiodend = t->value->uint8;
+      break;
+      case KEY_OWNER:
+        APP_LOG(APP_LOG_LEVEL_INFO, "Owner : %s", t->value->cstring);
+        strcpy (owner,t->value->cstring);
+      break;
+      case KEY_HOURLYVIBE: 
+        APP_LOG(APP_LOG_LEVEL_INFO, "HOURLYVIBE : %d", t->value->uint8);
+        hourlyvibe = t->value->uint8;
       break;
       default:
         APP_LOG(APP_LOG_LEVEL_ERROR, "Key %d not recognized!", (int)t->key);
