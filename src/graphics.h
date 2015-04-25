@@ -1,6 +1,8 @@
 #include <pebble.h>
 #pragma once
 
+Window *s_main_window;
+
 GBitmap *s_bitmap_no_image;
 GBitmap *s_bitmap_sunny;
 GBitmap *s_bitmap_cloudy;
@@ -21,8 +23,12 @@ BitmapLayer *s_bt_layer;
 
 BitmapLayer *s_battery_layer;
 
+InverterLayer *inverter_layer;
+
 void load_graphics (void);
 
 void destroy_graphics (void);
 
 void update_battery_indicator (BatteryChargeState);
+
+void update_inversion (uint8_t);

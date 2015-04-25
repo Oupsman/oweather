@@ -1,6 +1,7 @@
 #include <pebble.h>
 #include "graphics.h"
-    
+#include "storage.h"
+  
 static uint8_t BATTERY_ICONS [] = {
   RESOURCE_ID_IMG_BATTERY_0,
   RESOURCE_ID_IMG_BATTERY_20,
@@ -61,4 +62,21 @@ void update_battery_indicator (BatteryChargeState charge_state) {
   
   bitmap_layer_set_bitmap (s_battery_layer, s_battery_level);  
 
+}
+
+void update_inversion (uint8_t newvalue) {
+  if (newvalue != invert) {
+    switch (newvalue) {
+      case 0:
+        layer_remove_from_parent(inverter_layer_get_layer(inverter_layer));
+      break;
+      case 1:
+        layer_add_child (window_get_root_layer(s_main_window), inverter_layer_get_layer(inverter_layer));
+      break;
+      default:
+        APP_LOG(APP_LOG_LEVEL_ERROR, "ARE YOU KIDDING ME ?! : %d", newvalue);
+      break;
+    }
+    invert = newvalue;  
+  }
 }

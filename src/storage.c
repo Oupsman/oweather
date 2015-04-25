@@ -56,6 +56,8 @@ void save_datas(void) {
   persist_write_int (KEY_DNDPERIODSTART, dndperiodstart);
   persist_write_int (KEY_DNDPERIODEND, dndperiodend);
   persist_write_int (KEY_HOURLYVIBE, hourlyvibe);
+  persist_write_int (KEY_SHIFTTIME, shift_time);
+  persist_write_int (KEY_INVERT,invert);
   
   
   persist_write_string (KEY_UPDATETIME, time_update);

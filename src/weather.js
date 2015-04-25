@@ -34,8 +34,6 @@ function ask_Yahoo(where) {
       encodeURIComponent(where) + '%22%29&format=json&diagnostics=true' +
       '&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys&callback=';
       
-  console.log ("Yahoo URL : " + yahoo_url);
-               
   xhrRequest(yahoo_url, 'GET', 
     function(responseText) {
       // responseText contains a JSON object with weather info
@@ -49,11 +47,7 @@ function ask_Yahoo(where) {
         conditions = 255;
         console.log (responseText);
       }
-      /*
-      var conditions1 = json.query.results.channel.item.forecast[0].code;
-      var conditions2 = json.query.results.channel.item.forecast[1].code;
-      var conditions3 = json.query.results.channel.item.forecast[2].code;
-      */
+
       var feelslike;
       var temperature;
       
@@ -66,9 +60,7 @@ function ask_Yahoo(where) {
         feelslike = json.query.results.channel.wind.chill + "°F";
         temperature = json.query.results.channel.item.condition.temp + "°F";        
       }
-       
-      
-      
+           
       var dictionary = {
           "KEY_TEMPERATURE": temperature,
           "KEY_CONDITIONS": parseInt(conditions),
@@ -107,8 +99,7 @@ function ask_Google(pos) {
   var url = "https://maps.googleapis.com/maps/api/geocode/json?latlng=" +
       pos.coords.latitude + "," + pos.coords.longitude;
   
-   console.log ("Asking Google for your position, using url " + url);
-  // Send request to Google WS
+   // Send request to Google WS
   xhrRequest(url, 'GET', 
     function (responseText){
       var i;
@@ -119,8 +110,7 @@ function ask_Google(pos) {
       // responseText contains a JSON object with localisation info
       var json = JSON.parse(responseText);
        if (json.status !== "OK" ){
-         console.log ("JSON " + responseText);
-         console.log("No valid answer from Google, fallback to town");
+        console.log("No valid answer from Google, fallback to town");
          ask_Yahoo (town);
        } else {
          var nbelements = (json.results[0].address_components).length;
@@ -134,8 +124,7 @@ function ask_Google(pos) {
                countryelement = i;
              }        
          }
-         console.log ("Town element " + townelement + " Country element " + countryelement);
-      
+         
          /*      var nbelements_country = (json.results[0].address_components).length;
          for (i=0;i<nbelements_country;i++) {      
 
@@ -172,7 +161,7 @@ Pebble.addEventListener('ready',
   function(e) {
     console.log("PebbleKit JS ready!");
     temp_unit = parseInt(localStorage.getItem("temp_unit"));
-    console.log ("Temp_unit : " + temp_unit);
+    
     gps = localStorage.getItem("gps");
     if (gps === null) {
       gps = 1;
@@ -206,8 +195,6 @@ Pebble.addEventListener('appmessage',
 
 Pebble.addEventListener("showConfiguration", 
     function(e) {
-      console.log("showConfiguration Event");
-        console.log("showConfiguration Event");
         var url = "http://apps.oupsman.fr/oweather_config_15.php?" +
             "temp_unit=" + temp_unit +
             "&gps=" + gps +
@@ -254,7 +241,6 @@ Pebble.addEventListener("webviewclosed", function(e) {
   localStorage.setItem("interval",interval);
   localStorage.setItem("time_shift",time_shift);
   localStorage.setItem("invert", invert);
-  console.log ("Time shift : " + time_shift);
   
   // Force weather refresh when you change the settings
   getWeather();

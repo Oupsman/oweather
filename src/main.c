@@ -5,7 +5,6 @@
 #include "graphics.h"
   
   
-static Window *s_main_window;
 
 static TextLayer *s_time_layer;
 static TextLayer *s_weekday_layer;
@@ -15,7 +14,6 @@ static TextLayer *s_static_temp_layer;
 static TextLayer *s_town_layer;
 static TextLayer *s_update_layer;
 
-static InverterLayer *inverter_layer;
 
 static void update_bluetooth_indicator (bool connected) {
   
@@ -142,7 +140,7 @@ static void main_window_load(Window *window) {
   
   
   // Improve the layout to be more like a watchface
-  text_layer_set_font(s_time_layer, fonts_get_system_font(FONT_KEY_BITHAM_42_BOLD));
+  text_layer_set_font(s_time_layer, fonts_get_system_font(FONT_KEY_BITHAM_42_MEDIUM_NUMBERS));
   text_layer_set_text_alignment(s_time_layer, GTextAlignmentCenter);
 
   text_layer_set_font(s_weekday_layer, fonts_get_system_font(FONT_KEY_GOTHIC_14));
@@ -191,14 +189,10 @@ static void main_window_load(Window *window) {
   text_layer_set_text(s_windchill_layer, windchill);
   
   
-  // Make sure the time is displayed from the start
-  
+  // Make sure everything is displayed from the start
   update_conditions (conditions);
-  
   update_time();
-  
   init_bt_indicator ();
-  
   update_battery_indicator(charge_state);
   
 }
@@ -230,12 +224,10 @@ static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
     if(tick_time->tm_min % interval == 0) {
       APP_LOG (APP_LOG_LEVEL_INFO, "Updating weather");
       // Begin dictionary
-      DictionaryIterator *iter;
+      DictionaryIterator *iter;      
       app_message_outbox_begin(&iter);
-
       // Add a key-value pair
       dict_write_uint8(iter, 0, 0);
-
       // Send the message!
       app_message_outbox_send();
     }  
@@ -312,26 +304,11 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
       case KEY_INVERT:
         APP_LOG(APP_LOG_LEVEL_INFO, "INVERT : %d", t->value->uint8);
         newvalue = t->value->uint8;
-        if (newvalue != invert) {
-          switch (newvalue) {
-            case 0:
-              layer_remove_from_parent(inverter_layer_get_layer(inverter_layer));
-            break;
-            case 1:
-              layer_add_child (window_get_root_layer(s_main_window), inverter_layer_get_layer(inverter_layer));
-            break;
-            default:
-              APP_LOG(APP_LOG_LEVEL_ERROR, "ARE YOU KIDING ?! : %d", newvalue);
-            break;
-          }
-          invert = newvalue;
-          
-        }
+        update_inversion (newvalue);  
       break;
       case KEY_SHIFTTIME:
         APP_LOG(APP_LOG_LEVEL_INFO, "SHIFT TIME : %d", t->value->uint16);
-        shift_time = t->value->uint16;
-      
+        shift_time = t->value->uint16;    
         update_time();      
       break;
         
@@ -352,11 +329,15 @@ static void inbox_dropped_callback(AppMessageResult reason, void *context) {
 }
 
 static void outbox_failed_callback(DictionaryIterator *iterator, AppMessageResult reason, void *context) {
+  
   APP_LOG(APP_LOG_LEVEL_ERROR, "Outbox send failed!");
+
 }
 
 static void outbox_sent_callback(DictionaryIterator *iterator, void *context) {
+
   APP_LOG(APP_LOG_LEVEL_INFO, "Outbox send success!");
+
 }
 
 static void init() {
