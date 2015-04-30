@@ -11,6 +11,7 @@ var hourlyvibe = 0;
 var interval=30;
 var time_shift=0;
 var invert=0;
+var showseconds=0;
 
 var xhrRequest = function (url, type, callback) {
   var xhr = new XMLHttpRequest();
@@ -60,7 +61,7 @@ function ask_Yahoo(where) {
         feelslike = json.query.results.channel.wind.chill + "°F";
         temperature = json.query.results.channel.item.condition.temp + "°F";        
       }
-           
+      console.log ("where am i : " + where);
       var dictionary = {
           "KEY_TEMPERATURE": temperature,
           "KEY_CONDITIONS": parseInt(conditions),
@@ -74,6 +75,8 @@ function ask_Yahoo(where) {
           "KEY_INTERVAL": parseInt(interval),
           "KEY_SHIFTTIME": parseInt (time_shift),
           "KEY_INVERT": parseInt (invert),
+          "KEY_SECONDS": parseInt (showseconds),
+        
         };
           
       
@@ -91,55 +94,20 @@ function ask_Yahoo(where) {
   );
 } 
 
-function ask_Google(pos) {
-  // console.log ("GPS value" + gps);
-  if (gps === '1') {
-  // console.log ("Using GPS");  
-  // Construct URL
-  var url = "https://maps.googleapis.com/maps/api/geocode/json?latlng=" +
-      pos.coords.latitude + "," + pos.coords.longitude;
-  
-   // Send request to Google WS
-  xhrRequest(url, 'GET', 
-    function (responseText){
-      var i;
-      var townelement=0;
-      var countryelement=0;
-      // var gpstown = "unknow";
-      
-      // responseText contains a JSON object with localisation info
-      var json = JSON.parse(responseText);
-       if (json.status !== "OK" ){
-        console.log("No valid answer from Google, fallback to town");
-         ask_Yahoo (town);
-       } else {
-         var nbelements = (json.results[0].address_components).length;
-         // console.log ("Nb elements " + nbelements);
-         for (i=0; i<nbelements;i++) {
-           // console.log ("Type : " + json.results[0].address_components[i].types[0]);
-           if (json.results[0].address_components[i].types[0] == "locality") {
-             townelement = i;
-           }
-             if (json.results[0].address_components[i].types[0] == "country") {
-               countryelement = i;
-             }        
-         }
-         
-         /*      var nbelements_country = (json.results[0].address_components).length;
-         for (i=0;i<nbelements_country;i++) {      
-
-         }*/
-         var gpstown = json.results[0].address_components[townelement].long_name + "," + json.results[0].address_components[countryelement].short_name;
-         // console.log("Location :" + gpstown);
-         // Now we have geolocalisated the user, let's query the Yahoo weather 
-         ask_Yahoo (gpstown); 
-       }
-    }      
-  );      
-  } else {
-    // console.log ("NOT using GPS, Town is " + town);
-    ask_Yahoo (town);
-  }
+function ask_Gisgraphy (pos) {
+  var url = 'http://services.gisgraphy.com/street/streetsearch?format=json&lat=' + pos.coords.latitude + '&lng=' + pos.coords.longitude + '&from=1&to=1';
+  xhrRequest (url,'GET',
+    function (responseText) {
+      var json = JSON.parse (responseText) ;
+      if (json.numFound === 1 ) {
+        var gpstown = json.result[0].isIn + "," + json.result[0].countryCode;
+        ask_Yahoo (gpstown);   
+      } else {
+        console.log("Geoloc error from gisgraphy");
+        ask_Yahoo (town);
+      }
+    }         
+  );  
 }
 
 function locationError(err) {
@@ -149,10 +117,12 @@ function locationError(err) {
 function getWeather() {
   if (gps === '1') {
     navigator.geolocation.getCurrentPosition(
-      ask_Google,
+      ask_Gisgraphy,
       locationError,
       {timeout: 15000, maximumAge: 60000}
     );
+  } else {
+    ask_Yahoo (town);
   }
 }
 
@@ -206,7 +176,9 @@ Pebble.addEventListener("showConfiguration",
             "&hourlyvibe=" + hourlyvibe +
             "&interval=" + interval + 
             "&invert=" + invert +
+            "&showseconds=" + showseconds +
             "&time_shift=" + time_shift ;
+      
         console.log (url);
 
         Pebble.openURL(url);

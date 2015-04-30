@@ -10,6 +10,7 @@
         "KEY_INVERT": 15,
         "KEY_OWNER": 13,
         "KEY_SHIFTTIME": 14,
+        "KEY_SHOWSECONDS": 16,
         "KEY_TEMPERATURE": 1,
         "KEY_TOWN": 3,
         "KEY_UNIT": 5,
@@ -136,7 +137,7 @@
     "shortName": "oWeather",
     "uuid": "04b01329-d12c-492c-832a-d3c0240d2948",
     "versionCode": 1,
-    "versionLabel": "1.5",
+    "versionLabel": "1.6",
     "watchapp": {
         "watchface": true
     }
