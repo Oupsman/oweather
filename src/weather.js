@@ -1,8 +1,8 @@
 // JSON Online viewer : http://jsonviewer.stack.hu/
 
 var temp_unit = 0;
-var gps = 1;
-var town = "";
+var gps = '0';
+var town = "Paris, FR";
 var owner = "";
 var dnd = 1;
 var dndperiodstart = 22;
@@ -29,7 +29,9 @@ function f_to_c (temp_f) {
 }
 
 function ask_Yahoo(where) {
-  
+  if (where === null) {
+    where ="Paris, FR";
+  }
   var yahoo_url = "https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20weather.forecast%20" + 
       "where%20woeid%20in%20%28select%20woeid%20from%20geo.places%281%29%20where%20text%3D%22" + 
       encodeURIComponent(where) + '%22%29&format=json&diagnostics=true' +
@@ -38,7 +40,7 @@ function ask_Yahoo(where) {
   xhrRequest(yahoo_url, 'GET', 
     function(responseText) {
       // responseText contains a JSON object with weather info
-      // console.log ("Yahoo said " + responseText);
+      console.log ("Yahoo said " + responseText);
       var json = JSON.parse(responseText);
 
       
@@ -53,19 +55,18 @@ function ask_Yahoo(where) {
       var temperature;
       
       if (temp_unit === 0) {
-        console.log ("°C");
-        feelslike = f_to_c(json.query.results.channel.wind.chill) + "°C";
-        temperature = f_to_c(json.query.results.channel.item.condition.temp) + "°C";
+        feelslike = f_to_c(json.query.results.channel.wind.chill);
+        temperature = f_to_c(json.query.results.channel.item.condition.temp);
       } else {
-        console.log ("°F");
-        feelslike = json.query.results.channel.wind.chill + "°F";
-        temperature = json.query.results.channel.item.condition.temp + "°F";        
+
+        feelslike = json.query.results.channel.wind.chill;
+        temperature = json.query.results.channel.item.condition.temp;        
       }
-      console.log ("where am i : " + where);
+      console.log ("where am i : " + where + " temperature : " + temperature + " Windchill : " + feelslike);
       var dictionary = {
-          "KEY_TEMPERATURE": temperature,
+          "KEY_TEMPERATURE": String(temperature),
           "KEY_CONDITIONS": parseInt(conditions),
-          "KEY_FEELSLIKE": feelslike,
+          "KEY_FEELSLIKE": String(feelslike),
           "KEY_TOWN": where,    
           "KEY_OWNER": owner,
           "KEY_DND": parseInt(dnd),
@@ -76,6 +77,7 @@ function ask_Yahoo(where) {
           "KEY_SHIFTTIME": parseInt (time_shift),
           "KEY_INVERT": parseInt (invert),
           "KEY_SECONDS": parseInt (showseconds),
+          "KEY_UNIT": parseInt (temp_unit),
         
         };
           
@@ -96,16 +98,28 @@ function ask_Yahoo(where) {
 
 function ask_Gisgraphy (pos) {
   var url = 'http://services.gisgraphy.com/street/streetsearch?format=json&lat=' + pos.coords.latitude + '&lng=' + pos.coords.longitude + '&from=1&to=1';
+  console.log ("Gisgraphy Url : " + url);
   xhrRequest (url,'GET',
     function (responseText) {
-      var json = JSON.parse (responseText) ;
-      if (json.numFound === 1 ) {
-        var gpstown = json.result[0].isIn + "," + json.result[0].countryCode;
-        ask_Yahoo (gpstown);   
-      } else {
-        console.log("Geoloc error from gisgraphy");
+      console.log ("In callback" + responseText);
+      var json;
+      try {
+        json = JSON.parse (responseText);
+        console.log (JSON.stringify(json));
+        if (json.numFound === 1 ) {
+          var gpstown = json.result[0].isIn + "," + json.result[0].countryCode;
+          console.log("GPS Town : " + gpstown);
+          ask_Yahoo (gpstown);   
+        } else {
+          console.log("Geoloc error from gisgraphy");
+          ask_Yahoo (town);
+        }
+      } catch (e){
+        console.log("Geoloc error from gisgraphy : " + e + " Town : " + town);
         ask_Yahoo (town);
       }
+      
+    
     }         
   );  
 }
@@ -115,13 +129,16 @@ function locationError(err) {
 }
 
 function getWeather() {
-  if (gps === '1') {
+  console.log ("GPS : " + gps);
+  if (parseInt(gps) === 1) {
+    console.log ("Using GPS");
     navigator.geolocation.getCurrentPosition(
       ask_Gisgraphy,
       locationError,
       {timeout: 15000, maximumAge: 60000}
     );
   } else {
+    console.log ("NOT using GPS");
     ask_Yahoo (town);
   }
 }
@@ -151,6 +168,7 @@ Pebble.addEventListener('ready',
     if (!hourlyvibe) {
       hourlyvibe = 0;
     }
+    console.log ("GPS : " + gps);
   }
 );
 
@@ -163,9 +181,10 @@ Pebble.addEventListener('appmessage',
 );
 
 
+
 Pebble.addEventListener("showConfiguration", 
     function(e) {
-        var url = "http://apps.oupsman.fr/oweather_config_15.php?" +
+        var url = "http://apps.oupsman.fr/oweather_config_16.php?" +
             "temp_unit=" + temp_unit +
             "&gps=" + gps +
             "&town=" + encodeURIComponent(town) +
@@ -187,12 +206,13 @@ Pebble.addEventListener("showConfiguration",
 );
 
 Pebble.addEventListener("webviewclosed", function(e) {
-  
+  console.log (e.response);
   var configuration = JSON.parse(e.response);
   
   temp_unit = parseInt(configuration.temp_unit);
   gps = configuration.gps;
   town = configuration.town;
+  console.log ("Town :" + town);
   owner = configuration.owner;
   dnd = configuration.dnd;
   dndperiodstart = configuration.dndperiodstart;

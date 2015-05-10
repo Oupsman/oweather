@@ -63,7 +63,7 @@ void update_battery_indicator (BatteryChargeState charge_state) {
   bitmap_layer_set_bitmap (s_battery_layer, s_battery_level);  
 
 }
-
+#ifndef PBL_COLOR
 void update_inversion (uint8_t newvalue) {
   if (newvalue != invert) {
     switch (newvalue) {
@@ -80,3 +80,4 @@ void update_inversion (uint8_t newvalue) {
     invert = newvalue;  
   }
 }
+#endif

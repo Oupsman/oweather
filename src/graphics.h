@@ -23,7 +23,6 @@ BitmapLayer *s_bt_layer;
 
 BitmapLayer *s_battery_layer;
 
-InverterLayer *inverter_layer;
 
 void load_graphics (void);
 
@@ -31,4 +30,7 @@ void destroy_graphics (void);
 
 void update_battery_indicator (BatteryChargeState);
 
-void update_inversion (uint8_t);
+#ifndef PBL_COLOR
+  InverterLayer *inverter_layer;
+  void update_inversion (uint8_t);
+#endif

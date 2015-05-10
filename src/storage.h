@@ -1,5 +1,6 @@
 #pragma once
-
+#include <pebble.h>
+  
 #define KEY_CONDITIONS 0
 #define KEY_TEMPERATURE 1
 #define KEY_WINDCHILL 2
@@ -16,7 +17,7 @@
 #define KEY_OWNER 13
 #define KEY_SHIFTTIME 14
 #define KEY_INVERT 15
-  
+#define KEY_SECONDS 16
   
 char temperature[15];
 char windchill[15];

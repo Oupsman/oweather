@@ -86,54 +86,66 @@ static void main_window_load(Window *window) {
   
   BatteryChargeState charge_state = battery_state_service_peek();
   
-  
-  window_set_background_color(s_main_window, GColorBlack);
-  
-  // Create time TextLayer
   s_time_layer = text_layer_create(GRect(0, 20, 144, 50));
   s_weekday_layer = text_layer_create (GRect(0,8,144,16));
+  s_static_temp_layer = text_layer_create(GRect(72, 72, 26, 52));
+  s_temperature_layer = text_layer_create(GRect(98, 72, 46, 26));
+  s_windchill_layer = text_layer_create(GRect(98, 98, 46, 26));
+  s_town_layer = text_layer_create (GRect(0,134,144,16));
+  s_update_layer = text_layer_create (GRect(0,148,144,16));
+  
+  
+#ifdef PBL_COLOR
+  window_set_background_color(s_main_window, GColorWhite);
+  text_layer_set_background_color(s_time_layer, GColorWhite);
+  text_layer_set_text_color(s_time_layer, GColorBlack);
+  text_layer_set_background_color(s_weekday_layer, GColorWhite);
+  text_layer_set_text_color(s_weekday_layer, GColorBlack);
+  text_layer_set_background_color(s_static_temp_layer, GColorWhite);
+  text_layer_set_text_color(s_static_temp_layer, GColorBlack);
+  text_layer_set_background_color(s_temperature_layer, GColorWhite);
+  text_layer_set_text_color(s_temperature_layer, GColorBlack);
+  text_layer_set_background_color(s_windchill_layer, GColorWhite);
+  text_layer_set_text_color(s_windchill_layer, GColorBlack);
+  text_layer_set_background_color (s_town_layer,GColorWhite);
+  text_layer_set_text_color (s_town_layer,GColorBlack);
+  text_layer_set_background_color (s_update_layer,GColorWhite);
+  text_layer_set_text_color (s_update_layer,GColorBlack);
+#else 
+  window_set_background_color(s_main_window, GColorBlack);
   text_layer_set_background_color(s_time_layer, GColorBlack);
   text_layer_set_text_color(s_time_layer, GColorWhite);
-  text_layer_set_text(s_time_layer, "00:00");
-
   text_layer_set_background_color(s_weekday_layer, GColorBlack);
   text_layer_set_text_color(s_weekday_layer, GColorWhite);
-  text_layer_set_text(s_weekday_layer, "Wednesday December 31");
-
-  s_static_temp_layer = text_layer_create(GRect(72, 72, 26, 52));
   text_layer_set_background_color(s_static_temp_layer, GColorBlack);
   text_layer_set_text_color(s_static_temp_layer, GColorWhite);
-  text_layer_set_text_alignment(s_static_temp_layer, GTextAlignmentCenter);
-  text_layer_set_text(s_static_temp_layer, "T°");
-  
-  // Create temperature Layer
-  s_temperature_layer = text_layer_create(GRect(98, 72, 46, 26));
   text_layer_set_background_color(s_temperature_layer, GColorBlack);
   text_layer_set_text_color(s_temperature_layer, GColorWhite);
-  text_layer_set_text_alignment(s_temperature_layer, GTextAlignmentRight);
-  //text_layer_set_text(s_temperature_layer, "-xx °C");
-  
-  s_windchill_layer = text_layer_create(GRect(98, 98, 46, 26));
   text_layer_set_background_color(s_windchill_layer, GColorBlack);
   text_layer_set_text_color(s_windchill_layer, GColorWhite);
-  text_layer_set_text_alignment(s_windchill_layer, GTextAlignmentRight);
-  //text_layer_set_text(s_windchill_layer, "-xx °C");
-
-  s_town_layer = text_layer_create (GRect(0,134,144,16));
   text_layer_set_background_color (s_town_layer,GColorBlack);
   text_layer_set_text_color (s_town_layer,GColorWhite);
+  text_layer_set_background_color (s_update_layer,GColorBlack);
+  text_layer_set_text_color (s_update_layer,GColorWhite); 
+  
+#endif
+  
+  text_layer_set_text(s_time_layer, "00:00");
+  text_layer_set_text(s_weekday_layer, "Wednesday December 31");
+  text_layer_set_text_alignment(s_static_temp_layer, GTextAlignmentCenter);
+  text_layer_set_text(s_static_temp_layer, "T°");
+  text_layer_set_text_alignment(s_temperature_layer, GTextAlignmentRight);
+  //text_layer_set_text(s_temperature_layer, "-xx °C");
+  text_layer_set_text_alignment(s_windchill_layer, GTextAlignmentRight);
+  //text_layer_set_text(s_windchill_layer, "-xx °C");  
   text_layer_set_text_alignment(s_town_layer, GTextAlignmentCenter);
   text_layer_set_text(s_town_layer, town);
-  
-  s_update_layer = text_layer_create (GRect(0,148,144,16));
-  text_layer_set_background_color (s_update_layer,GColorBlack);
-  text_layer_set_text_color (s_update_layer,GColorWhite);
   text_layer_set_text_alignment(s_update_layer, GTextAlignmentRight);
-  text_layer_set_text(s_update_layer, time_update);
+  text_layer_set_text(s_update_layer, time_update);  
   
   s_conditions_layer = bitmap_layer_create(GRect (0,64,72,72));
-  bitmap_layer_set_bitmap (s_conditions_layer, s_bitmap_no_image);
-
+  bitmap_layer_set_bitmap (s_conditions_layer, s_bitmap_no_image);  
+  // bitmap_layer_set_compositing_mode (s_conditions_layer,GCompOpSet);
   s_battery_layer  = bitmap_layer_create (GRect (110,0,25,10));
  
   s_bt_layer = bitmap_layer_create (GRect (137,0,7,10));
@@ -176,12 +188,12 @@ static void main_window_load(Window *window) {
   layer_add_child(window_get_root_layer(window), bitmap_layer_get_layer(s_conditions_layer));     
   layer_add_child(window_get_root_layer(window), bitmap_layer_get_layer(s_battery_layer));         
   layer_add_child(window_get_root_layer(window), bitmap_layer_get_layer(s_bt_layer));  
-  
+#ifndef PBL_COLOR  
   inverter_layer = inverter_layer_create(GRect (0, 0, 144, 168));
   if (invert == 1) {
     layer_add_child (window_get_root_layer(window), inverter_layer_get_layer(inverter_layer));
   }
-  
+#endif  
   APP_LOG (APP_LOG_LEVEL_INFO, "Temperature : %s", temperature);
   text_layer_set_text(s_temperature_layer, temperature);
 
@@ -221,7 +233,9 @@ static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
   
   if ((tick_time->tm_hour < dndperiodstart && tick_time->tm_hour >= dndperiodend) || dnd == 1){
     // Get weather update every ten minutes
-    if(tick_time->tm_min % interval == 0) {
+    // if(tick_time->tm_min % interval == 0) {
+    if(tick_time->tm_min % 1 == 0) {
+
       APP_LOG (APP_LOG_LEVEL_INFO, "Updating weather");
       // Begin dictionary
       DictionaryIterator *iter;      
@@ -249,7 +263,7 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
   //static char conditions_buffer[32];
   //static char weather_layer_buffer[32];
   uint8_t newvalue;
-  
+  static char unit_text [] = "° C";
   // Read first item
   Tuple *t = dict_read_first(iterator);
   
@@ -258,8 +272,10 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
     // Which key was received?
     switch(t->key) {
       case KEY_TEMPERATURE:
-        text_layer_set_text(s_temperature_layer, t->value->cstring);
+        APP_LOG (APP_LOG_LEVEL_INFO,"Raw value : %s", t->value->cstring);
         strcpy(temperature,t->value->cstring);
+        APP_LOG (APP_LOG_LEVEL_INFO,"Temperature : %s", temperature);
+
       break;
       case KEY_CONDITIONS:
         weather_code = (unsigned int)t->value->uint8;
@@ -268,8 +284,8 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
         text_layer_set_text(s_update_layer, time_update);
       break;
       case KEY_WINDCHILL:
-        text_layer_set_text(s_windchill_layer, t->value->cstring);
         strcpy (windchill, t->value->cstring);
+        APP_LOG (APP_LOG_LEVEL_INFO,"Windchill : %s", windchill);
       break;
       case KEY_TOWN:
         APP_LOG(APP_LOG_LEVEL_INFO, "Town : %s", t->value->cstring);
@@ -303,15 +319,27 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
       break;
       case KEY_INVERT:
         APP_LOG(APP_LOG_LEVEL_INFO, "INVERT : %d", t->value->uint8);
-        newvalue = t->value->uint8;
+#ifndef PBL_COLOR
+        newvalue = t->value->uint8;    
         update_inversion (newvalue);  
+#endif
       break;
       case KEY_SHIFTTIME:
         APP_LOG(APP_LOG_LEVEL_INFO, "SHIFT TIME : %d", t->value->uint16);
         shift_time = t->value->uint16;    
         update_time();      
       break;
-        
+      case KEY_UNIT: 
+        switch (t->value->uint8) {
+          case 0:
+            strcpy (unit_text, "°C");
+          break;
+          case 1:
+            strcpy (unit_text, "°F");
+          break;
+        }
+      break;
+      
       default:
         APP_LOG(APP_LOG_LEVEL_ERROR, "Key %d not recognized!", (int)t->key);
       break;
@@ -319,6 +347,11 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
     // Look for next item
     t = dict_read_next(iterator);
   }
+  strcat (temperature, unit_text);
+  strcat (windchill, unit_text);
+  
+  text_layer_set_text(s_temperature_layer, temperature);
+  text_layer_set_text(s_windchill_layer, windchill);
 
 }
 
