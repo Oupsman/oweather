@@ -233,9 +233,8 @@ static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
   
   if ((tick_time->tm_hour < dndperiodstart && tick_time->tm_hour >= dndperiodend) || dnd == 1){
     // Get weather update every ten minutes
-    // if(tick_time->tm_min % interval == 0) {
-    if(tick_time->tm_min % 1 == 0) {
-
+    if(tick_time->tm_min % interval == 0) {
+   // if(tick_time->tm_min % 1 == 0) {
       APP_LOG (APP_LOG_LEVEL_INFO, "Updating weather");
       // Begin dictionary
       DictionaryIterator *iter;      
@@ -410,7 +409,6 @@ static void init() {
   
   battery_state_service_subscribe(&update_battery_indicator);
   bluetooth_connection_service_subscribe(&update_bluetooth_indicator);
-  
 }
 
 static void deinit() {

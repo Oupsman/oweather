@@ -41,7 +41,8 @@ void load_datas (void) {
   shift_time = persist_exists(KEY_SHIFTTIME) ? persist_read_int(KEY_SHIFTTIME): 0;
   invert = persist_exists(KEY_INVERT) ? persist_read_int(KEY_INVERT): 0;
 
-  
+    APP_LOG (APP_LOG_LEVEL_INFO,"Loading datas from storage %s %s %u %s %s %u",temperature,windchill,conditions,time_update,town, hourlyvibe);
+
 }
 
 void save_datas(void) {

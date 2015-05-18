@@ -22,7 +22,7 @@
         "configurable"
     ],
     "companyName": "Benoit SERRA",
-    "longName": "Oupsman weather",
+    "longName": "Oupsman weather watchface",
     "projectType": "native",
     "resources": {
         "media": [
@@ -136,12 +136,10 @@
     "sdkVersion": "3",
     "shortName": "oWeather",
     "targetPlatforms": [
-        "aplite",
         "basalt"
     ],
     "uuid": "04b01329-d12c-492c-832a-d3c0240d2948",
-    "versionCode": 1,
-    "versionLabel": "1.6",
+    "versionLabel": "2.1",
     "watchapp": {
         "watchface": true
     }
