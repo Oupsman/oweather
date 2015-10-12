@@ -25,6 +25,7 @@ uint8_t conditions;
 uint8_t hourlyvibe;
 uint8_t interval;
 uint8_t invert;
+char windforce[15];
 
 uint16_t shift_time;
 

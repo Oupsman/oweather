@@ -12,8 +12,12 @@ var interval=30;
 var time_shift=0;
 var invert=0;
 var showseconds=0;
+var winddir = 0;
+var windforce = 0;
 
 var just_launched = false;
+
+var api_key = "a86e5408cc73fb090d2ed8f4176d0a3b";
 
 var xhrRequest = function (url, type, callback) {
 	var xhr = new XMLHttpRequest();
@@ -30,6 +34,14 @@ function f_to_c (temp_f) {
 	return temp_c;
 }
 
+function mph_to_kmh (temp_mph) {
+  
+  var temp_kmh;
+  temp_kmh = Math.round(temp_mph * 1.609);
+  return temp_kmh;
+
+}
+
 function ask_Yahoo(where) {
 	if (where === null) {
 		where ="Paris, FR";
@@ -38,12 +50,12 @@ function ask_Yahoo(where) {
 			"where%20woeid%20in%20%28select%20woeid%20from%20geo.places%281%29%20where%20text%3D%22" + 
 			encodeURIComponent(where) + '%22%29&format=json&diagnostics=true' +
 			'&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys&callback=';
-			
+  console.log ("Yahoo URL : " + yahoo_url);
 	xhrRequest(yahoo_url, 'GET', 
 		function(responseText) {
 			// responseText contains a JSON object with weather info
-			// console.log ("Yahoo said " + responseText);
-			var json = JSON.parse(responseText);
+      console.log ("Yahoo said : " + responseText);
+      var json = JSON.parse(responseText);
 
 			
 			// Conditions
@@ -59,11 +71,17 @@ function ask_Yahoo(where) {
 			if (temp_unit === 0) {
 				feelslike = f_to_c(json.query.results.channel.wind.chill);
 				temperature = f_to_c(json.query.results.channel.item.condition.temp);
+        windforce = mph_to_kmh(json.query.results.channel.wind.speed);
 			} else {
 
 				feelslike = json.query.results.channel.wind.chill;
 				temperature = json.query.results.channel.item.condition.temp;        
+        windforce = json.query.results.channel.wind.speed;
 			}
+      
+      winddir = json.query.results.channel.wind.direction;
+
+      
 			//console.log ("where am i : " + where + " temperature : " + temperature + " Windchill : " + feelslike);
 			var dictionary = {
 					"KEY_TEMPERATURE": String(temperature),
@@ -80,6 +98,8 @@ function ask_Yahoo(where) {
 					"KEY_INVERT": parseInt (invert),
 					"KEY_SECONDS": parseInt (showseconds),
 					"KEY_UNIT": parseInt (temp_unit),
+          "KEY_WINDDIR": parseInt (winddir),
+          "KEY_WINDFORCE": String (windforce),        
 				};
 
 			// Send to Pebble
@@ -170,8 +190,7 @@ function push_forecast (json,name) {
 
 
 function ask_OpenWeather_forecast (pos) {
-	var owurl = 'http://api.openweathermap.org/data/2.5/forecast?lat=' + pos.coords.latitude + '&lon=' + pos.coords.longitude;
-
+	var owurl = 'http://api.openweathermap.org/data/2.5/forecast?lat=' + pos.coords.latitude + '&lon=' + pos.coords.longitude + '&APPID=' + api_key;
   xhrRequest(owurl, 'GET', 
 		function(responseText) { 
 			var json;
@@ -267,7 +286,9 @@ Pebble.addEventListener('ready',
 		dndperiodend = localStorage.getItem ("dndperiodend");
 		time_shift = localStorage.getItem ("time_shift");
 		invert = localStorage.getItem ("invert");
-		
+		winddir = localStorage.getItem ("winddir");
+    windforce = localStorage.getItem ("windforce");
+    
 		if (!temp_unit) {
 			temp_unit = 0; // Default: Celcius
 		}
@@ -341,39 +362,13 @@ Pebble.addEventListener("webviewclosed", function(e) {
 	localStorage.setItem("interval",interval);
 	localStorage.setItem("time_shift",time_shift);
 	localStorage.setItem("invert", invert);
-	
+	localStorage.setItem("winddir", winddir);
+  localStorage.setItem("windforce", windforce);
+  
 	// Force weather refresh when you change the settings
 	getWeather();
 
 });
-
-/*
-Pebble.addEventListener('ready', function() {
-	console.log('PebbleKit JS ready!');
-
-	// An hour ahead
-	var date = new Date();
-	date.setHours(date.getHours() + 1);
-
-	// Create the pin
-	var pin = {
-		"id": "pin-" + Math.round((Math.random() * 100000)),
-		"time": date.toISOString(),
-		"layout": {
-			"type": "genericPin",
-			"title": "Example Pin",
-			"tinyIcon": "system://images/TIMELINE_PIN_TINY"
-		}
-	};
-
-	console.log('Inserting pin in the future: ' + JSON.stringify(pin));
-
-	insertUserPin(pin, function(responseText) { 
-		console.log('Result: ' + responseText);
-	});
-});
-*/
-/******************************* timeline lib *********************************/
 
 // The timeline public URL root
 var API_URL_ROOT = 'https://timeline-api.getpebble.com/';

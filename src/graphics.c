@@ -23,6 +23,7 @@ void destroy_graphics (void) {
   gbitmap_destroy (s_bitmap_snowy);
   gbitmap_destroy (s_bitmap_windy);
   gbitmap_destroy (s_battery_level);
+  gbitmap_destroy (s_winddir_back);
   
   gbitmap_destroy (s_bluetooth);
   gbitmap_destroy (s_no_bluetooth);
@@ -44,25 +45,48 @@ void load_graphics (void) {
   s_bluetooth = gbitmap_create_with_resource (RESOURCE_ID_IMG_BTSIGN);
   s_no_bluetooth = gbitmap_create_with_resource (RESOURCE_ID_IMG_NO_BT);
   
+  s_winddir_back = gbitmap_create_with_resource (RESOURCE_ID_IMG_ROSEDESVENTS);
+  
+}
+
+void draw_battery_indicator (Layer *me, GContext* ctx ) {
+  
+  BatteryChargeState charge_state = battery_state_service_peek();
+  
+  static char log_buffer[128] = "Updating battery indicator" ;
+  
+  static uint8_t bat_level = charge_state.charge_percent / 4;
+  
+  APP_LOG (APP_LOG_LEVEL_INFO, "%s %u %u", log_buffer, bat_level, charge_state.charge_percent);
+
+  #ifdef PBL_COLOR
+    graphics_context_set_stroke_color (ctx,GColorBlack);
+    graphics_draw_rect (ctx,GRect (0,0,27,10));
+    graphics_draw_rect (ctx,GRect(26,3,4,4));
+    if (!charge_state.is_charging) {
+      if (charge_state.charge_percent < 21) {
+        graphics_context_set_fill_color(ctx, GColorRed);
+      } else {
+        graphics_context_set_fill_color(ctx, GColorGreen);
+      }
+      graphics_fill_rect(ctx, GRect(1, 1, bat_level, 8), 0, GCornerNone);
+    } else {
+      graphics_context_set_fill_color(ctx, GColorYellow);
+      graphics_fill_rect(ctx, GRect(1, 1, 25, 8), 0, GCornerNone);
+      graphics_fill_rect(ctx, GRect(27,4,2,2),0,GCornerNone);
+    }    
+  
+  #endif  
+  
+  
 }
 
 void update_battery_indicator (BatteryChargeState charge_state) {
-  
-  static char log_buffer[128] = "Updating battery indicator" ;
-  static uint8_t bat_level;
-  
- // BatteryChargeState charge_state = battery_state_service_peek();
-  bat_level = charge_state.charge_percent / 20;
-  
-  APP_LOG (APP_LOG_LEVEL_INFO, "%s %u %u", log_buffer, bat_level, charge_state.charge_percent);
-  
-  gbitmap_destroy (s_battery_level);
-  
-  s_battery_level = gbitmap_create_with_resource (BATTERY_ICONS[bat_level]);
-  
-  bitmap_layer_set_bitmap (s_battery_layer, s_battery_level);  
 
+  layer_mark_dirty (s_battery_layer);
+  
 }
+
 #ifndef PBL_COLOR
 void update_inversion (uint8_t newvalue) {
   if (newvalue != invert) {

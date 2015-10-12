@@ -27,6 +27,11 @@
     "resources": {
         "media": [
             {
+                "file": "images/rose_des_vents.png",
+                "name": "IMG_ROSEDESVENTS",
+                "type": "png"
+            },
+            {
                 "file": "images/windy.png",
                 "name": "IMG_WINDY",
                 "type": "png"
@@ -139,7 +144,7 @@
         "basalt"
     ],
     "uuid": "04b01329-d12c-492c-832a-d3c0240d2948",
-    "versionLabel": "2.1",
+    "versionLabel": "2.4",
     "watchapp": {
         "watchface": true
     }
