@@ -1,7 +1,19 @@
+/*
+  OWeather
+  Oupsman Weather 
+  A watchface for Pebble, displaying facy icons the current weather of the current location
+  Using Yahoo Weather webservice
+  
+  graphics.c
+  
+  handling graphics code
+
+*/
 #include <pebble.h>
 #include "graphics.h"
 #include "storage.h"
-  
+
+/*  
 static uint8_t BATTERY_ICONS [] = {
   RESOURCE_ID_IMG_BATTERY_0,
   RESOURCE_ID_IMG_BATTERY_20,
@@ -10,8 +22,9 @@ static uint8_t BATTERY_ICONS [] = {
   RESOURCE_ID_IMG_BATTERY_80,
   RESOURCE_ID_IMG_BATTERY_100
 };
-  
-void destroy_graphics (void) {
+ */ 
+
+ void destroy_graphics (void) {
   
   gbitmap_destroy (s_bitmap_no_image);
   gbitmap_destroy (s_bitmap_sunny);
@@ -55,7 +68,9 @@ void draw_battery_indicator (Layer *me, GContext* ctx ) {
   
   static char log_buffer[128] = "Updating battery indicator" ;
   
-  static uint8_t bat_level = charge_state.charge_percent / 4;
+  static uint8_t bat_level;
+  
+  bat_level = charge_state.charge_percent / 4;
   
   APP_LOG (APP_LOG_LEVEL_INFO, "%s %u %u", log_buffer, bat_level, charge_state.charge_percent);
 

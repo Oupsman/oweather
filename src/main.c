@@ -85,20 +85,18 @@ static void update_time() {
 static void main_window_load(Window *window) {
   
   s_time_layer = text_layer_create(GRect(0, 10, 144, 50));
-  s_weekday_layer = text_layer_create (GRect(0,0,100,16));
+  s_weekday_layer = text_layer_create (GRect(1,1,100,16));
   s_temperature_layer = text_layer_create(GRect(10, 124, 46, 26));
   s_windchill_layer = text_layer_create(GRect(10, 145, 46, 26));
   s_town_layer = text_layer_create (GRect(0,134,144,16));
   s_update_layer = text_layer_create (GRect(0,150,144,16));
   s_windforce_layer = text_layer_create (GRect (75,124,50,26));
   s_conditions_layer = bitmap_layer_create(GRect (0,54,72,72));
-  // s_battery_layer  = bitmap_layer_create (GRect (100,0,25,10));
-  
-  s_battery_layer = layer_create (GRect (90,0,31,10));
+  s_bt_layer = bitmap_layer_create (GRect (132,1,7,10));
+  s_winddir_layer = bitmap_layer_create (GRect(75,54,72,72));  
+  s_battery_layer = layer_create (GRect (90,1,31,10));
   layer_set_update_proc(s_battery_layer, draw_battery_indicator);
   
-  s_bt_layer = bitmap_layer_create (GRect (132,0,7,10));
-  s_winddir_layer = bitmap_layer_create (GRect(75,54,72,72));
   
 #ifdef PBL_COLOR
   window_set_background_color(s_main_window, GColorWhite);
