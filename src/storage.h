@@ -20,7 +20,6 @@
 #define KEY_SECONDS 16
   
 char temperature[15];
-char windchill[15];
 uint8_t conditions;
 uint8_t hourlyvibe;
 uint8_t interval;

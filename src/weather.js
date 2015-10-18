@@ -84,9 +84,8 @@ function ask_Yahoo(where) {
       
 			//console.log ("where am i : " + where + " temperature : " + temperature + " Windchill : " + feelslike);
 			var dictionary = {
-					"KEY_TEMPERATURE": String(temperature),
+					"KEY_TEMPERATURE": String(temperature) + "/" + String (feelslike),
 					"KEY_CONDITIONS": parseInt(conditions),
-					"KEY_FEELSLIKE": String(feelslike),
 					"KEY_TOWN": where,    
 					"KEY_OWNER": owner,
 					"KEY_DND": parseInt(dnd),

@@ -69,9 +69,12 @@ static uint32_t WEATHER_ICONS[] = {
 void set_icon_from_conditions (uint8_t conditions) {
 
   gbitmap_destroy (s_bitmap_weather);
-
+  
   if (conditions <= MAX_CONDITIONS && conditions != 255) {
+    APP_LOG (APP_LOG_LEVEL_DEBUG, "Loading icon number %u", conditions);
     s_bitmap_weather = gbitmap_create_with_resource (WEATHER_ICONS[conditions]);
+    // s_bitmap_weather = gbitmap_create_with_resource (RESOURCE_ID_IMG_SUNNY);
+    APP_LOG (APP_LOG_LEVEL_DEBUG, "After the load icon number %u", conditions);
   } else {
     s_bitmap_weather = gbitmap_create_with_resource (RESOURCE_ID_IMG_NO_IMAGE);
   }  

@@ -34,71 +34,62 @@
             {
                 "file": "images/windy.png",
                 "name": "IMG_WINDY",
+                "targetPlatforms": [
+                    "basalt"
+                ],
                 "type": "png"
             },
             {
                 "file": "images/haze.png",
                 "name": "IMG_HAZE",
+                "targetPlatforms": [
+                    "basalt"
+                ],
                 "type": "png"
             },
             {
                 "file": "images/rainy.png",
                 "name": "IMG_RAINY",
+                "targetPlatforms": [
+                    "basalt"
+                ],
                 "type": "png"
             },
             {
                 "file": "images/thunder.png",
                 "name": "IMG_THUNDER",
+                "targetPlatforms": [
+                    "basalt"
+                ],
                 "type": "png"
             },
             {
                 "file": "images/hail.png",
                 "name": "IMG_HAIL",
+                "targetPlatforms": [
+                    "basalt"
+                ],
                 "type": "png"
             },
             {
                 "file": "images/snowy.png",
                 "name": "IMG_SNOWY",
+                "targetPlatforms": [
+                    "basalt"
+                ],
                 "type": "png"
             },
             {
                 "file": "images/foggy.png",
                 "name": "IMG_FOGGY",
+                "targetPlatforms": [
+                    "basalt"
+                ],
                 "type": "png"
             },
             {
                 "file": "images/no_bluetooth.png",
                 "name": "IMG_NO_BT",
-                "type": "png"
-            },
-            {
-                "file": "images/battery_00.png",
-                "name": "IMG_BATTERY_0",
-                "type": "png"
-            },
-            {
-                "file": "images/battery_20.png",
-                "name": "IMG_BATTERY_20",
-                "type": "png"
-            },
-            {
-                "file": "images/battery_40.png",
-                "name": "IMG_BATTERY_40",
-                "type": "png"
-            },
-            {
-                "file": "images/battery_60.png",
-                "name": "IMG_BATTERY_60",
-                "type": "png"
-            },
-            {
-                "file": "images/battery_80.png",
-                "name": "IMG_BATTERY_80",
-                "type": "png"
-            },
-            {
-                "file": "images/battery_100.png",
-                "name": "IMG_BATTERY_100",
                 "type": "png"
             },
             {
@@ -109,31 +100,49 @@
             {
                 "file": "images/cloudy.png",
                 "name": "IMG_CLOUDY",
+                "targetPlatforms": [
+                    "basalt"
+                ],
                 "type": "png"
             },
             {
                 "file": "images/cloud_night.png",
                 "name": "IMG_CLOUD_NIGHT",
+                "targetPlatforms": [
+                    "basalt"
+                ],
                 "type": "png"
             },
             {
                 "file": "images/sunny.png",
                 "name": "IMG_SUNNY",
+                "targetPlatforms": [
+                    "basalt"
+                ],
                 "type": "png"
             },
             {
                 "file": "images/partly.png",
                 "name": "IMG_PARTLY",
+                "targetPlatforms": [
+                    "basalt"
+                ],
                 "type": "png"
             },
             {
                 "file": "images/fair_night.png",
                 "name": "IMG_FAIR_NIGHT",
+                "targetPlatforms": [
+                    "basalt"
+                ],
                 "type": "png"
             },
             {
                 "file": "images/no_image.png",
                 "name": "IMG_NO_IMAGE",
+                "targetPlatforms": [
+                    "basalt"
+                ],
                 "type": "png"
             }
         ]

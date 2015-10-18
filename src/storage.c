@@ -10,7 +10,6 @@
 
 */
 
-
 #include <pebble.h>
 #include "storage.h"
 
@@ -18,10 +17,6 @@ void load_datas (void) {
   if ( persist_exists(KEY_TEMPERATURE)) {
      persist_read_string (KEY_TEMPERATURE, temperature, sizeof (temperature)); 
   }
-  if (persist_exists(KEY_WINDCHILL)) {
-    persist_read_string (KEY_WINDCHILL, windchill, sizeof(windchill));
-    
-  } 
   conditions = persist_exists(KEY_CONDITIONS) ? persist_read_int(KEY_CONDITIONS) : 0;
   hourlyvibe = persist_exists(KEY_HOURLYVIBE) ? persist_read_int(KEY_HOURLYVIBE) : 0;
   dnd = persist_exists(KEY_DND) ? persist_read_int(KEY_DND) : 1;
@@ -41,16 +36,15 @@ void load_datas (void) {
   shift_time = persist_exists(KEY_SHIFTTIME) ? persist_read_int(KEY_SHIFTTIME): 0;
   invert = persist_exists(KEY_INVERT) ? persist_read_int(KEY_INVERT): 0;
 
-    APP_LOG (APP_LOG_LEVEL_INFO,"Loading datas from storage %s %s %u %s %s %u",temperature,windchill,conditions,time_update,town, hourlyvibe);
+    APP_LOG (APP_LOG_LEVEL_INFO,"Loading datas from storage %s %u %s %s %u",temperature,conditions,time_update,town, hourlyvibe);
 
 }
 
 void save_datas(void) {
   
-  APP_LOG (APP_LOG_LEVEL_INFO,"Writing datas to storage %s %s %u %s %s %u",temperature,windchill,conditions,time_update,town, hourlyvibe);
+  APP_LOG (APP_LOG_LEVEL_INFO,"Writing datas to storage %s %u %s %s %u",temperature,conditions,time_update,town, hourlyvibe);
 
   persist_write_string (KEY_TEMPERATURE, temperature);
-  persist_write_string (KEY_WINDCHILL, windchill);
   persist_write_int (KEY_CONDITIONS, conditions);  
   
   persist_write_int (KEY_DND, dnd);
